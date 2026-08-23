@@ -2,10 +2,10 @@
 
 // ============================================================
 // HoneycombModel.tsx — Regular hexagonal cellular 3D structure
-// High-visibility, crisp cellular walls on bright scientific background
+// Bright, high-contrast cellular walls with clean scientific shading
 // ============================================================
 
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import {
@@ -15,15 +15,19 @@ import {
 import { computeDeformation } from "@/lib/simulation/deformationModel";
 import { clamp } from "@/lib/simulation/normalize";
 
-// ── Stress-to-colour mapping (Pastel Blue → Vibrant Yellow-Gold) ──
+// ── Stress-to-colour mapping (Bright Pastel Blue → Pastel Yellow-Gold) ──
 function stressToColor(demand: number): THREE.Color {
-  // 0 = vibrant pastel blue (#4FA8E0), 1 = rich pastel yellow-gold (#F0C438)
+  // 0 = bright pastel blue (#74B9FF), 1 = rich pastel yellow-gold (#F9CA24)
   const d = clamp(demand, 0, 1);
-  const r = (1 - d) * 0.31 + d * 0.94;
-  const g = (1 - d) * 0.66 + d * 0.77;
-  const b = (1 - d) * 0.88 + d * 0.22;
-  return new THREE.Color(r, g, b);
+  const color = new THREE.Color();
+  const r = (1 - d) * 0.455 + d * 0.976;
+  const g = (1 - d) * 0.725 + d * 0.792;
+  const b = (1 - d) * 1.000 + d * 0.141;
+  color.setRGB(r, g, b);
+  return color;
 }
+
+const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#74B9FF");
 
 // ── Hexagonal prism geometry ──────────────────────────────────
 function createHexPrismGeometry(circumRadius: number, height: number, wallThickness: number): THREE.BufferGeometry {
@@ -60,6 +64,7 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
     bevelThickness: 0.02,
   });
   geo.center();
+  geo.computeVertexNormals();
   return geo;
 }
 
@@ -115,14 +120,14 @@ export function HoneycombModel() {
 
       const color = showStress
         ? stressToColor(cell.demand)
-        : new THREE.Color("#4FA8E0");
+        : DEFAULT_STRUCTURAL_COLOR;
       colors.push(color);
     }
     return { matrices, colors };
   }, [cells, showStress, showDeformation, globalDeform]);
 
   // ── Apply matrices & colours to InstancedMesh ─────────────
-  React.useEffect(() => {
+  useLayoutEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
     for (let i = 0; i < matrices.length; i++) {
@@ -144,8 +149,8 @@ export function HoneycombModel() {
         receiveShadow
       >
         <meshStandardMaterial
-          vertexColors
-          roughness={0.35}
+          color="#FFFFFF"
+          roughness={0.4}
           metalness={0.05}
           side={THREE.DoubleSide}
         />

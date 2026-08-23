@@ -17,27 +17,45 @@ import { LoadArrow } from "./LoadArrow";
 function SceneLighting() {
   return (
     <>
-      {/* High ambient illumination ensures all faces are bright & clear */}
-      <ambientLight intensity={1.1} color="#FFFFFF" />
+      {/* High-intensity ambient light prevents unlit or dark faces */}
+      <ambientLight intensity={1.3} color="#FFFFFF" />
       
-      {/* Primary key light from top-right-front */}
+      {/* Hemisphere light: bright sky + soft light blue ground fill */}
+      <hemisphereLight
+        args={["#FFFFFF", "#DCEFFA", 1.2]}
+        position={[0, 20, 0]}
+      />
+
+      {/* Primary key light from top-right */}
       <directionalLight
-        position={[8, 14, 8]}
-        intensity={1.3}
+        position={[10, 16, 10]}
+        intensity={1.4}
         color="#FFFFFF"
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0001}
       />
       
-      {/* Fill light from opposite side to keep shadows soft & legible */}
-      <directionalLight position={[-8, 7, -8]} intensity={0.75} color="#E3F2FD" />
+      {/* Secondary fill light from opposite corner to eliminate dark shadows */}
+      <directionalLight
+        position={[-10, 8, -10]}
+        intensity={0.9}
+        color="#E3F2FD"
+      />
       
-      {/* Soft top-down light */}
-      <directionalLight position={[0, 10, 0]} intensity={0.5} color="#FFFDE7" />
-      
-      {/* Subtle bottom bounce light for under-strut visibility */}
-      <directionalLight position={[0, -6, 0]} intensity={0.4} color="#E8F4F8" />
+      {/* Front-facing light for optimal model legibility */}
+      <directionalLight
+        position={[0, 4, 12]}
+        intensity={0.7}
+        color="#FFFFFF"
+      />
+
+      {/* Subtle upward bounce light for underside struts */}
+      <directionalLight
+        position={[0, -8, 0]}
+        intensity={0.5}
+        color="#EEF4F8"
+      />
     </>
   );
 }
@@ -46,14 +64,14 @@ function SceneGrid() {
   return (
     <Grid
       position={[0, -3.5, 0]}
-      args={[24, 24]}
+      args={[26, 26]}
       cellSize={0.5}
-      cellThickness={0.6}
+      cellThickness={0.7}
       cellColor="#D2E1EC"
       sectionSize={2.5}
-      sectionThickness={1.2}
+      sectionThickness={1.3}
       sectionColor="#ADC7DC"
-      fadeDistance={22}
+      fadeDistance={24}
       fadeStrength={1}
       infiniteGrid
     />
@@ -66,6 +84,9 @@ function SceneContent() {
 
   return (
     <>
+      {/* Explicit background color guarantees the viewport is never black */}
+      <color attach="background" args={["#EEF4F8"]} />
+      
       <SceneLighting />
       <SceneGrid />
 
@@ -109,16 +130,16 @@ export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
         borderRadius: 16,
         overflow: "hidden",
         border: "1px solid #D7E2EA",
-        boxShadow: "inset 0 0 30px rgba(169, 216, 245, 0.15)",
       }}
     >
       <Canvas
-        camera={{ position: [8.5, 6.5, 8.5], fov: 42, near: 0.1, far: 200 }}
+        camera={{ position: [9, 7.5, 9], fov: 40, near: 0.1, far: 200 }}
         shadows
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}
-        style={{
-          background: "linear-gradient(180deg, #FBFDFF 0%, #EEF4F8 100%)",
+        gl={{
+          antialias: true,
+          alpha: false,
+          preserveDrawingBuffer: true,
         }}
       >
         <Suspense fallback={null}>

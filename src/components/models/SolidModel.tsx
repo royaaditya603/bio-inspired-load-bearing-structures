@@ -20,14 +20,16 @@ export function SolidModel() {
   const compressY = showDeformation ? -F_norm * 0.08 * deformationScale : 0;
   const scaleY = 1 + compressY;
 
-  // Stress colour: vibrant pastel blue to rich golden yellow under high load
+  // Stress colour: bright pastel blue to rich golden yellow under high load
   const stressColor = useMemo(() => {
-    if (!showStress) return new THREE.Color("#4FA8E0");
+    if (!showStress) return new THREE.Color("#74B9FF");
     const d = clamp(output.stressIndex / 100, 0, 1);
-    const r = (1 - d) * 0.31 + d * 0.94;
-    const g = (1 - d) * 0.66 + d * 0.77;
-    const b = (1 - d) * 0.88 + d * 0.22;
-    return new THREE.Color(r, g, b);
+    const color = new THREE.Color();
+    const r = (1 - d) * 0.455 + d * 0.976;
+    const g = (1 - d) * 0.725 + d * 0.792;
+    const b = (1 - d) * 1.000 + d * 0.141;
+    color.setRGB(r, g, b);
+    return color;
   }, [showStress, output.stressIndex]);
 
   return (
@@ -36,8 +38,8 @@ export function SolidModel() {
         <boxGeometry args={[4, 3, 4]} />
         <meshStandardMaterial
           color={stressColor}
-          roughness={0.3}
-          metalness={0.08}
+          roughness={0.4}
+          metalness={0.05}
         />
       </mesh>
       {/* Crisp outer edge wireframe */}
