@@ -1,5 +1,6 @@
 /* ============================================================
    globals.css — Bio-Inspired Structures · Pastel Engineering Theme
+   Typography: Times New Roman
    ============================================================ */
 
 :root {
@@ -52,11 +53,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: "Times New Roman", Times, serif;
 }
 
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  font-family: "Times New Roman", Times, serif;
 }
 
 body {
@@ -65,18 +68,19 @@ body {
     radial-gradient(ellipse at 80% 20%, rgba(169, 216, 245, 0.25) 0%, transparent 50%),
     radial-gradient(ellipse at 10% 80%, rgba(248, 231, 166, 0.2) 0%, transparent 45%);
   color: var(--text);
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: "Times New Roman", Times, serif;
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 /* ── Typography ───────────────────────────────────────────── */
-h1, h2, h3, h4 {
+h1, h2, h3, h4, h5, h6 {
   color: var(--text);
+  font-family: "Times New Roman", Times, serif;
   font-weight: 700;
   line-height: 1.25;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); }
@@ -84,11 +88,16 @@ h2 { font-size: clamp(1.4rem, 2.5vw, 2rem); }
 h3 { font-size: clamp(1.05rem, 1.8vw, 1.35rem); }
 h4 { font-size: 1rem; }
 
+p, span, label, input, button, select, textarea, table, th, td, div {
+  font-family: "Times New Roman", Times, serif;
+}
+
 p { color: var(--text-muted); }
 
 a {
   color: var(--blue-accent);
   text-decoration: none;
+  font-family: "Times New Roman", Times, serif;
   transition: color 0.2s ease;
 }
 a:hover { color: var(--blue-dark); }
@@ -129,7 +138,8 @@ a:hover { color: var(--blue-dark); }
   padding: 0.6rem 1.3rem;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
-  font-size: 0.88rem;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -177,7 +187,7 @@ a:hover { color: var(--blue-dark); }
 
 .btn-sm {
   padding: 0.38rem 0.85rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
 }
 
 /* ── Badges / Tags ────────────────────────────────────────── */
@@ -187,7 +197,8 @@ a:hover { color: var(--blue-dark); }
   gap: 0.35rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -242,6 +253,7 @@ input[type="range"]:focus::-webkit-slider-thumb {
   gap: 0.6rem;
   cursor: pointer;
   user-select: none;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .toggle-track {
@@ -276,15 +288,17 @@ input[type="range"]:focus::-webkit-slider-thumb {
 
 /* ── Metric Value Display ─────────────────────────────────── */
 .metric-value {
+  font-family: "Times New Roman", Times, serif;
   font-size: 1.7rem;
   font-weight: 800;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
 .metric-label {
-  font-size: 0.72rem;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -329,6 +343,7 @@ input[type="range"]:focus::-webkit-slider-thumb {
 
 .section-title h2 {
   color: var(--text);
+  font-family: "Times New Roman", Times, serif;
 }
 
 .section-title::after {
@@ -356,7 +371,8 @@ input[type="range"]:focus::-webkit-slider-thumb {
   border: 1px solid #F5E5AD;
   border-radius: var(--radius-md);
   padding: 0.85rem 1.1rem;
-  font-size: 0.82rem;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 0.88rem;
   color: var(--text-muted);
   line-height: 1.55;
   box-shadow: var(--shadow-sm);
@@ -372,6 +388,7 @@ input[type="range"]:focus::-webkit-slider-thumb {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* ── Animations ───────────────────────────────────────────── */

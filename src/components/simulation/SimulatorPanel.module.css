@@ -10,6 +10,7 @@
   gap: 0;
   padding-bottom: 1.5rem;
   box-shadow: -2px 0 10px rgba(36, 52, 71, 0.03);
+  font-family: "Times New Roman", Times, serif;
 }
 
 .section {
@@ -21,12 +22,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #62748A;
   margin-bottom: 0.85rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .sectionIcon {
@@ -55,10 +57,11 @@
   border: 1px solid transparent;
   background: transparent;
   color: #62748A;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .modelTab:hover {
@@ -86,13 +89,14 @@
 }
 
 .presetBtn {
-  font-size: 0.72rem !important;
+  font-size: 0.78rem !important;
   padding: 0.4rem 0.4rem !important;
   text-align: center;
   justify-content: center;
   background: #EEF4F8;
   border: 1px solid #D7E2EA;
   color: #243447;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .presetBtn:hover {
@@ -113,11 +117,11 @@
   border: 1px solid #D7E2EA;
   border-radius: 6px;
   padding: 0.35rem 0.6rem;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #1C4C74;
   text-align: center;
-  font-family: monospace;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .failureBanner {
@@ -126,10 +130,11 @@
   border-radius: 8px;
   padding: 0.65rem 0.85rem;
   color: #D9534F;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   margin-top: 0.85rem;
   line-height: 1.4;
   animation: fadeIn 0.3s ease;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Toggle stack */
@@ -142,10 +147,11 @@
 
 /* Optimization */
 .optDesc {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: #62748A;
   margin-bottom: 0.75rem;
   line-height: 1.5;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .optProgress {
@@ -153,15 +159,17 @@
 }
 
 .optLabel {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: #62748A;
   margin-bottom: 0.35rem;
   font-weight: 600;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .optBtn {
   width: 100%;
   justify-content: center;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .optBtn:disabled {
@@ -176,10 +184,11 @@
 }
 
 .legendTitle {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   color: #62748A;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .legendBar {
@@ -193,16 +202,18 @@
 .legendLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   align-items: center;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .legendColorLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.64rem;
+  font-size: 0.7rem;
   color: #8C9BAE;
   margin-top: 0.15rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Actions */

@@ -22,6 +22,7 @@ export function DiagnosticsPanel() {
         right: "1rem",
         zIndex: 999,
         width: open ? 280 : "auto",
+        fontFamily: '"Times New Roman", Times, serif',
       }}
     >
       <button
@@ -32,10 +33,10 @@ export function DiagnosticsPanel() {
           borderRadius: 8,
           color: "#1C4C74",
           padding: "0.4rem 0.8rem",
-          fontSize: "0.75rem",
+          fontSize: "0.82rem",
           fontWeight: 600,
           cursor: "pointer",
-          fontFamily: "monospace",
+          fontFamily: '"Times New Roman", Times, serif',
           display: "block",
           width: "100%",
           textAlign: "left",
@@ -53,8 +54,8 @@ export function DiagnosticsPanel() {
             borderRadius: 8,
             padding: "0.75rem",
             marginTop: 4,
-            fontFamily: "monospace",
-            fontSize: "0.7rem",
+            fontFamily: '"Times New Roman", Times, serif',
+            fontSize: "0.78rem",
             color: "#243447",
             lineHeight: 1.7,
             boxShadow: "0 8px 24px rgba(36, 52, 71, 0.12)",

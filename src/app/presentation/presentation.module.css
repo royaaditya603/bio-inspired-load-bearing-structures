@@ -11,6 +11,7 @@
   font-size: 0.88rem;
   color: #62748A;
   margin-top: 0.2rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .topActions {
@@ -43,6 +44,7 @@
   text-align: left;
   cursor: pointer;
   color: #62748A;
+  font-family: "Times New Roman", Times, serif;
   transition: all 0.15s ease;
 }
 
@@ -59,16 +61,18 @@
 }
 
 .thumbNum {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: #D4A017;
   margin-bottom: 0.25rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .thumbTitle {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   line-height: 1.35;
   font-weight: 600;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Slide Card */
@@ -91,10 +95,10 @@
 }
 
 .slideCounter {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #62748A;
-  font-family: monospace;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .slideTitle {
@@ -102,6 +106,7 @@
   color: #243447;
   line-height: 1.2;
   margin-bottom: 0.4rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .slideSubtitle {
@@ -110,6 +115,7 @@
   font-weight: 500;
   margin-bottom: 1.75rem;
   line-height: 1.4;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .slideContent {
@@ -134,11 +140,12 @@
 }
 
 .bulletItem {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #243447;
   line-height: 1.6;
   position: relative;
   padding-left: 1.5rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .bulletItem::before {
@@ -154,13 +161,14 @@
   border-left: 4px solid #F8E7A6;
   border-radius: 4px;
   padding: 0.85rem 1.1rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #243447;
   margin-top: 1.5rem;
   line-height: 1.5;
   border-top: 1px solid #F5E5AD;
   border-right: 1px solid #F5E5AD;
   border-bottom: 1px solid #F5E5AD;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .statsSidebar {
@@ -184,13 +192,15 @@
   font-weight: 800;
   color: #D4A017;
   letter-spacing: -0.02em;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .statLbl {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #62748A;
   margin-top: 0.2rem;
   font-weight: 500;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Progress bar */
@@ -226,8 +236,9 @@
 }
 
 .keyHint {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #62748A;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .keyHint kbd {
@@ -236,7 +247,7 @@
   border-radius: 4px;
   padding: 0.15rem 0.4rem;
   color: #243447;
-  font-family: monospace;
+  font-family: "Times New Roman", Times, serif;
 }
 
 @media (max-width: 900px) {

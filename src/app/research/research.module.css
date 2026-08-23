@@ -3,10 +3,11 @@
 }
 
 .leadText {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.7;
   color: #243447;
   max-width: 900px;
+  font-family: "Times New Roman", Times, serif;
 }
 
 /* Visual Flow */
@@ -17,9 +18,10 @@
 }
 
 .flowTitle {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #243447;
   margin-bottom: 1.25rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .bioFlow {
@@ -42,16 +44,18 @@
 }
 
 .bioNodeTitle {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: #243447;
   letter-spacing: 0.04em;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .bioNodeDesc {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: #62748A;
   line-height: 1.4;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .bioArrow {
@@ -77,23 +81,26 @@
 }
 
 .paperTitle {
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   color: #243447;
   margin-bottom: 0.4rem;
   line-height: 1.3;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .paperAuthors {
   color: #3A88C8;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin-bottom: 1rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .paperSummary {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.65;
   color: #62748A;
   margin-bottom: 1.5rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .benchmarkHeader {
@@ -107,11 +114,12 @@
 
 .benchmarkHeader h4 {
   color: #243447;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .sourceTag {
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 600;
   text-transform: uppercase;
   color: #634B00;
@@ -119,6 +127,7 @@
   padding: 0.25rem 0.65rem;
   border-radius: 4px;
   border: 1px solid #F5E5AD;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .metricBox {
@@ -134,19 +143,22 @@
   font-weight: 800;
   color: #D4A017;
   letter-spacing: -0.02em;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .metricLabel {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #243447;
   margin-top: 0.25rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .metricSub {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: #62748A;
   margin-top: 0.2rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .envelopeStat {
@@ -154,9 +166,10 @@
   border: 1px solid #C4E4F7;
   border-radius: 8px;
   padding: 0.85rem 1.1rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #1C4C74;
   margin-top: 1.25rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .cardHeader {
@@ -171,19 +184,21 @@
 }
 
 .cardBody {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #62748A;
   line-height: 1.6;
   margin-bottom: 0.75rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .list {
   padding-left: 1.2rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #62748A;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .list strong {
@@ -211,18 +226,20 @@
 }
 
 .analogyHead {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-bottom: 1px solid;
   padding-bottom: 0.5rem;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .analogyItem {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: #62748A;
   line-height: 1.5;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .analogyItem strong {
@@ -230,10 +247,11 @@
 }
 
 .formulaDesc {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #62748A;
   margin-bottom: 0.6rem;
   line-height: 1.4;
+  font-family: "Times New Roman", Times, serif;
 }
 
 .equation {
@@ -241,8 +259,8 @@
   border: 1px solid #D7E2EA;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
-  font-family: monospace;
-  font-size: 0.78rem;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 0.88rem;
   color: #1C4C74;
   margin-bottom: 0.4rem;
   text-align: center;
