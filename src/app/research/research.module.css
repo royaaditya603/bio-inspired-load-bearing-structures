@@ -3,22 +3,54 @@
 }
 
 .leadText {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1.7;
   color: #243447;
-  max-width: 900px;
+  max-width: 950px;
   font-family: "Times New Roman", Times, serif;
 }
 
-/* Visual Flow */
+/* ── Section Header Banners ────────────────────────────────── */
+.sourceCategoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.sourceCategoryNumber {
+  background: #1C4C74;
+  color: #FFFFFF;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.sourceCategoryTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #243447;
+  font-family: "Times New Roman", Times, serif;
+  letter-spacing: -0.01em;
+}
+
+/* ── Visual Flow ───────────────────────────────────────────── */
 .flowCard {
   background: #FFFFFF;
   border: 1px solid #D7E2EA;
   padding: 1.5rem 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .flowTitle {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: #243447;
   margin-bottom: 1.25rem;
   font-family: "Times New Roman", Times, serif;
@@ -44,7 +76,7 @@
 }
 
 .bioNodeTitle {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: #243447;
   letter-spacing: 0.04em;
@@ -52,7 +84,7 @@
 }
 
 .bioNodeDesc {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #62748A;
   line-height: 1.4;
   font-family: "Times New Roman", Times, serif;
@@ -62,15 +94,21 @@
   display: flex;
   align-items: center;
   color: #D4A017;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 800;
 }
 
-/* Paper Card */
-.paperCard {
-  border-left: 4px solid #F8E7A6;
+/* ── Primary Source Paper Card ─────────────────────────────── */
+.primaryPaperCard {
+  border-left: 6px solid #D4A017;
   background: #FFFFFF;
+  border-top: 1px solid #D7E2EA;
+  border-right: 1px solid #D7E2EA;
+  border-bottom: 1px solid #D7E2EA;
+  border-radius: 14px;
+  padding: 2rem;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 18px rgba(36, 52, 71, 0.05);
 }
 
 .badgeRow {
@@ -81,7 +119,7 @@
 }
 
 .paperTitle {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #243447;
   margin-bottom: 0.4rem;
   line-height: 1.3;
@@ -90,41 +128,84 @@
 
 .paperAuthors {
   color: #3A88C8;
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
   font-family: "Times New Roman", Times, serif;
 }
 
 .paperSummary {
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: #62748A;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: #4B5E73;
   margin-bottom: 1.5rem;
   font-family: "Times New Roman", Times, serif;
 }
 
+.topicsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.topicTag {
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
+  color: #1C4C74;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #DCEFFA;
+  border: 1px solid #A9D8F5;
+  color: #1C4C74;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: "Times New Roman", Times, serif;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.linkButton:hover {
+  background: #A9D8F5;
+  color: #123350;
+  transform: translateY(-1px);
+}
+
+/* Paper Experimental Benchmarks */
 .benchmarkHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid #E6EEF4;
-  padding-top: 1.1rem;
+  padding-top: 1.25rem;
   margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .benchmarkHeader h4 {
   color: #243447;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-family: "Times New Roman", Times, serif;
 }
 
 .sourceTag {
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
   text-transform: uppercase;
   color: #634B00;
   background: #FFF5CF;
-  padding: 0.25rem 0.65rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 4px;
   border: 1px solid #F5E5AD;
   font-family: "Times New Roman", Times, serif;
@@ -134,12 +215,12 @@
   background: #EEF4F8;
   border: 1px solid #D7E2EA;
   border-radius: 10px;
-  padding: 1rem;
+  padding: 1.1rem;
   text-align: center;
 }
 
 .metricVal {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: #D4A017;
   letter-spacing: -0.02em;
@@ -147,31 +228,120 @@
 }
 
 .metricLabel {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
   color: #243447;
   margin-top: 0.25rem;
   font-family: "Times New Roman", Times, serif;
 }
 
 .metricSub {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: #62748A;
   margin-top: 0.2rem;
   font-family: "Times New Roman", Times, serif;
 }
 
 .envelopeStat {
-  background: #DCEFFA;
-  border: 1px solid #C4E4F7;
+  background: #FFFDF5;
+  border: 1px solid #F8E7A6;
   border-radius: 8px;
-  padding: 0.85rem 1.1rem;
-  font-size: 0.9rem;
-  color: #1C4C74;
+  padding: 0.95rem 1.2rem;
+  font-size: 0.92rem;
+  color: #243447;
   margin-top: 1.25rem;
   font-family: "Times New Roman", Times, serif;
 }
 
+/* ── Secondary Source Paper Card ───────────────────────────── */
+.secondaryPaperCard {
+  border-left: 6px solid #3A88C8;
+  background: #FFFFFF;
+  border-top: 1px solid #D7E2EA;
+  border-right: 1px solid #D7E2EA;
+  border-bottom: 1px solid #D7E2EA;
+  border-radius: 14px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 18px rgba(36, 52, 71, 0.05);
+}
+
+/* ── Historical Timeline Card ──────────────────────────────── */
+.timelineCard {
+  border-left: 6px solid #2E9B66;
+  background: #FFFFFF;
+  border-top: 1px solid #D7E2EA;
+  border-right: 1px solid #D7E2EA;
+  border-bottom: 1px solid #D7E2EA;
+  border-radius: 14px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 18px rgba(36, 52, 71, 0.05);
+}
+
+/* ── Video Reference Grid ──────────────────────────────────── */
+.videoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.videoCard {
+  background: #FFFFFF;
+  border: 1px solid #D7E2EA;
+  border-top: 4px solid #F8E7A6;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-shadow: 0 2px 8px rgba(36, 52, 71, 0.04);
+}
+
+.videoBadge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #D4A017;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.videoTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #243447;
+  line-height: 1.35;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.videoDesc {
+  font-size: 0.85rem;
+  color: #62748A;
+  line-height: 1.5;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.videoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #3A88C8;
+  font-size: 0.82rem;
+  font-weight: 600;
+  word-break: break-all;
+  text-decoration: none;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.videoLink:hover {
+  color: #1C4C74;
+  text-decoration: underline;
+}
+
+/* ── Principles / Analogy / Formula Cards ──────────────────── */
 .cardHeader {
   display: flex;
   align-items: center;
@@ -184,17 +354,17 @@
 }
 
 .cardBody {
-  font-size: 0.92rem;
-  color: #62748A;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  color: #4B5E73;
+  line-height: 1.65;
   margin-bottom: 0.75rem;
   font-family: "Times New Roman", Times, serif;
 }
 
 .list {
   padding-left: 1.2rem;
-  font-size: 0.9rem;
-  color: #62748A;
+  font-size: 0.92rem;
+  color: #4B5E73;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -226,7 +396,7 @@
 }
 
 .analogyHead {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -236,9 +406,9 @@
 }
 
 .analogyItem {
-  font-size: 0.88rem;
-  color: #62748A;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  color: #4B5E73;
+  line-height: 1.55;
   font-family: "Times New Roman", Times, serif;
 }
 
@@ -247,7 +417,7 @@
 }
 
 .formulaDesc {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: #62748A;
   margin-bottom: 0.6rem;
   line-height: 1.4;
@@ -260,12 +430,18 @@
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   font-family: "Times New Roman", Times, serif;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #1C4C74;
   margin-bottom: 0.4rem;
   text-align: center;
   overflow-x: auto;
   font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .videoGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
