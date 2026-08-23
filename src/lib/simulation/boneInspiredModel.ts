@@ -16,9 +16,8 @@ import {
   MIN_ORIENTATION_FACTOR,
   EPSILON,
   STIFFNESS_EXPONENT,
-  MATERIAL_PA12,
 } from "./constants";
-import { computeNormalizedLoad } from "./loadModel";
+import { computeNormalizedLoad, computeLoadSpatialInfluence } from "./loadModel";
 
 // ─── Deterministic pseudo-random (seeded) ────────────────────
 function seededRandom(seed: number): () => number {
@@ -67,27 +66,26 @@ export function computeOrientationFactor(alignment: number): number {
 /**
  * Compute local demand D_i for a strut.
  *
- * D_i = normalize(W_i × L_i × O_i, D_min, D_max)
- *
- * W_i = 1 + β × z_norm  (load-position influence)
- * L_i = load-path factor (simplified: alignment with load)
- * O_i = orientationBase + orientationGain × alignment_i
+ * D_i = normalize(W_i × L_i × O_i × spatialFactor × F_norm)
  *
  * @param z_norm Normalised vertical position of strut midpoint [0,1]
  * @param alignment Strut alignment with load direction [0,1]
  * @param F_norm Normalised applied load [0,1]
+ * @param spatialFactor Proximity to 3D applied load point (default 1.0)
+ * @param beta Load-path vertical sensitivity
  */
 export function computeLocalDemand(
   z_norm: number,
   alignment: number,
   F_norm: number,
+  spatialFactor = 1.0,
   beta = 0.6
 ): number {
   const W_i = 1 + beta * z_norm;
   const L_i = 0.4 + 0.6 * alignment; // load-path influence
   const O_i = computeOrientationFactor(alignment);
-  const raw = W_i * L_i * O_i * F_norm;
-  // Normalise: raw range is roughly [0, (1+β)×1×1×1] = [0, 1.6]
+  const S_i = 0.35 + 0.65 * spatialFactor; // localized load factor
+  const raw = W_i * L_i * O_i * S_i * F_norm;
   return clamp(safeNumber(raw / 1.6, 0), 0, 1);
 }
 
@@ -139,23 +137,16 @@ export function computeBoneRelativeStiffness(
 // ─── Strut network generation ─────────────────────────────────
 
 /**
- * Generate the bone-inspired strut network.
+ * Generate the bone-inspired strut network with 3D localized load influence.
  *
- * The network is a CONCEPTUAL ENGINEERED LATTICE inspired by trabecular bone.
- * It is irregular by design, with variable cell size, strut thickness,
- * orientation, and local density responding to the applied load.
- *
- * Topology:
- * - Random node positions seeded for reproducibility
- * - Nodes are connected to nearby neighbours within a cutoff radius
- * - Orientation-responsive (preferred vertical struts in high-load areas)
- *
- * @param cellSizeMm    Cell characteristic length in mm
- * @param cellCount     Approx number of cells across one axis
- * @param F             Applied load in N
- * @param orientationDeg Primary orientation angle in degrees
- * @param rho_base      Base relative density
- * @param seed          Random seed for reproducibility
+ * @param cellSizeMm      Cell characteristic length in mm
+ * @param cellCount       Approx number of cells across one axis
+ * @param F               Applied load in N
+ * @param orientationDeg  Primary orientation angle in degrees
+ * @param rho_base        Base relative density
+ * @param seed            Random seed for reproducibility
+ * @param loadPosX        Applied load X position
+ * @param loadPosZ        Applied load Z position
  */
 export function generateStrutNetwork(
   cellSizeMm: number,
@@ -163,7 +154,9 @@ export function generateStrutNetwork(
   F: number,
   orientationDeg: number,
   rho_base: number,
-  seed = 42
+  seed = 42,
+  loadPosX = 0,
+  loadPosZ = 0
 ): StrutElement[] {
   const rand = seededRandom(seed);
 
@@ -175,11 +168,7 @@ export function generateStrutNetwork(
   const F_norm = computeNormalizedLoad(F);
   const r_base = clamp(span * 0.12, 0.04, 0.4);
 
-  // Orientation preference angle (convert to radians)
-  const oriRad = (clamp(orientationDeg, 0, 90) * Math.PI) / 180;
-
   // ─── Generate nodes ───────────────────────────────────────
-  // Regular grid with controlled random jitter
   const nodes: [number, number, number][] = [];
   const jitterScale = span * 0.35;
 
@@ -189,7 +178,6 @@ export function generateStrutNetwork(
         const bx = -half + ix * span;
         const by = -half + iy * span;
         const bz = -half + iz * span;
-        // Jitter: more near centre (trabecular-like density variation)
         const r = Math.sqrt(bx * bx + bz * bz) / half;
         const j = jitterScale * (0.3 + 0.7 * r);
         nodes.push([
@@ -227,8 +215,11 @@ export function generateStrutNetwork(
       // Alignment with load direction
       const alignment = computeAlignment(dx, dy, dz);
 
+      // Spatial factor from 3D load position
+      const spatialFactor = computeLoadSpatialInfluence(mx, mz, loadPosX, loadPosZ);
+
       // Demand field
-      const demand = computeLocalDemand(z_norm, alignment, F_norm);
+      const demand = computeLocalDemand(z_norm, alignment, F_norm, spatialFactor);
 
       // Local density
       const localDensity = computeLocalDensity(demand, rho_base);
@@ -283,11 +274,10 @@ export function computeAverageRelativeDensity(
 
 /**
  * Estimate total solid volume of strut network (m³).
- * V_solid ≈ Σ π r_i² L_i × 0.85 (node overlap correction)
  */
 export function computeStrutNetworkVolume(struts: StrutElement[]): number {
   let V = 0;
-  const sceneToM = 0.01; // scene units → metres (1 su = 10 mm)
+  const sceneToM = 0.01;
   for (const s of struts) {
     const r = s.radius * sceneToM;
     const l = s.length * sceneToM;

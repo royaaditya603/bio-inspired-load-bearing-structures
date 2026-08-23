@@ -2,6 +2,7 @@
 
 // ============================================================
 // SimulatorPanel.tsx — All simulation controls wired to context
+// Includes 3D XYZ load coordinates, localized load, and failure indicator
 // ============================================================
 
 import React from "react";
@@ -9,17 +10,28 @@ import { useSimulation } from "@/components/simulation/SimulationContext";
 import { SliderControl } from "@/components/ui/SliderControl";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { ModelType } from "@/lib/simulation/types";
-import { PRESETS, MAX_OPT_ITERATIONS } from "@/lib/simulation/constants";
+import {
+  PRESETS,
+  MAX_OPT_ITERATIONS,
+  LOAD_MIN_N,
+  LOAD_MAX_N,
+  LOAD_POS_X_MIN,
+  LOAD_POS_X_MAX,
+  LOAD_POS_Y_MIN,
+  LOAD_POS_Y_MAX,
+  LOAD_POS_Z_MIN,
+  LOAD_POS_Z_MAX,
+} from "@/lib/simulation/constants";
 import styles from "./SimulatorPanel.module.css";
 
 const MODEL_OPTIONS: { value: ModelType; label: string; icon: string }[] = [
-  { value: "solid", label: "Solid", icon: "▪" },
+  { value: "solid", label: "Solid (Brick)", icon: "▪" },
   { value: "honeycomb", label: "Honeycomb", icon: "⬡" },
   { value: "bone", label: "Bone-Inspired", icon: "⁜" },
 ];
 
 export function SimulatorPanel() {
-  const { state, setParam, reset, applyPreset, runOptimization } =
+  const { state, output, setParam, reset, applyPreset, runOptimization } =
     useSimulation();
 
   const isBone = state.modelType === "bone";
@@ -72,22 +84,76 @@ export function SimulatorPanel() {
         </div>
       </section>
 
-      {/* ── Applied load ──────────────────────────────────── */}
+      {/* ── Load Parameters (Applied load + 3D XYZ Position) ─ */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
           <span className={styles.sectionIcon}>↓</span>
           <span>Load Parameters</span>
         </div>
-        <SliderControl
-          label="Applied Load"
-          value={state.loadN}
-          min={500}
-          max={3000}
-          step={50}
-          unit=" N"
-          accentColor="yellow"
-          onChange={(v) => setParam("loadN", v)}
-        />
+
+        <div className={styles.sliderStack}>
+          <SliderControl
+            label="Applied Load"
+            value={state.loadN}
+            min={LOAD_MIN_N}
+            max={LOAD_MAX_N}
+            step={50}
+            unit=" N"
+            accentColor="yellow"
+            onChange={(v) => setParam("loadN", v)}
+          />
+
+          {/* Coordinate Readout */}
+          <div className={styles.coordReadout}>
+            <span>Target: ({state.loadPosX >= 0 ? "+" : ""}{state.loadPosX.toFixed(2)}, {state.loadPosY.toFixed(2)}, {state.loadPosZ >= 0 ? "+" : ""}{state.loadPosZ.toFixed(2)})</span>
+          </div>
+
+          <SliderControl
+            label="Load Position — X"
+            value={state.loadPosX}
+            min={LOAD_POS_X_MIN}
+            max={LOAD_POS_X_MAX}
+            step={0.05}
+            accentColor="blue"
+            onChange={(v) => setParam("loadPosX", parseFloat(v.toFixed(2)))}
+          />
+
+          <SliderControl
+            label="Load Position — Y"
+            value={state.loadPosY}
+            min={LOAD_POS_Y_MIN}
+            max={LOAD_POS_Y_MAX}
+            step={0.05}
+            accentColor="blue"
+            onChange={(v) => setParam("loadPosY", parseFloat(v.toFixed(2)))}
+          />
+
+          <SliderControl
+            label="Load Position — Z"
+            value={state.loadPosZ}
+            min={LOAD_POS_Z_MIN}
+            max={LOAD_POS_Z_MAX}
+            step={0.05}
+            accentColor="blue"
+            onChange={(v) => setParam("loadPosZ", parseFloat(v.toFixed(2)))}
+          />
+        </div>
+
+        {/* Structural Load Threshold / Failure Indicator */}
+        {output.isFailed && (
+          <div className={styles.failureBanner}>
+            <div style={{ fontWeight: 800 }}>
+              {isSolid && "⚠ STRUCTURAL FAILURE"}
+              {isHoneycomb && "⚠ HIGH STRESS EXCEEDED"}
+              {isBone && "⚠ HIGH DEMAND REGIME"}
+            </div>
+            <div style={{ fontSize: "0.72rem", marginTop: 2 }}>
+              {isSolid && `Masonry threshold (${output.failureThresholdN} N) exceeded at center.`}
+              {isHoneycomb && `Honeycomb threshold (${output.failureThresholdN} N) exceeded.`}
+              {isBone && `Bone lattice threshold (${output.failureThresholdN} N) exceeded.`}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ── Geometry parameters ───────────────────────────── */}

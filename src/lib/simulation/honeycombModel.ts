@@ -11,8 +11,7 @@ import {
   STIFFNESS_EXPONENT,
   MATERIAL_PA12,
 } from "./constants";
-import { computeLocalStressIndex } from "./stressModel";
-import { computeNormalizedLoad } from "./loadModel";
+import { computeNormalizedLoad, computeLoadSpatialInfluence } from "./loadModel";
 
 // ─── Geometry math ───────────────────────────────────────────
 
@@ -101,22 +100,22 @@ function generateHexCenters(
 }
 
 /**
- * Generate the full honeycomb cell dataset.
+ * Generate the full honeycomb cell dataset with 3D spatial load influence.
  *
- * Scene coordinates are centred at origin.
- * Y (Three.js) is used for vertical positioning,
- * the hex grid is laid out in the X–Z plane.
- *
- * @param cellSizeMm    Cell circumradius in mm (converted to scene units: ÷10)
+ * @param cellSizeMm      Cell circumradius in mm (converted to scene units: ÷10)
  * @param wallThicknessMm Wall thickness in mm
- * @param cellCount     Number of rings (not total cells)
- * @param F             Applied load in N
+ * @param cellCount       Number of rings (not total cells)
+ * @param F               Applied load in N
+ * @param loadPosX        Load 3D X position
+ * @param loadPosZ        Load 3D Z position
  */
 export function generateHoneycombCells(
   cellSizeMm: number,
   wallThicknessMm: number,
   cellCount: number,
-  F: number
+  F: number,
+  loadPosX = 0,
+  loadPosZ = 0
 ): HexCell[] {
   const cellSizeScene = clamp(cellSizeMm, 5, 50) / 10; // mm → scene units
   const gridRadius = clamp(Math.round(cellCount), 1, 10);
@@ -132,19 +131,20 @@ export function generateHoneycombCells(
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
-  const yRange = maxY - minY || 1;
 
   return centers.map(([x, z], id) => {
     // Normalized vertical position [0 (bottom support) → 1 (top load)]
     const z_norm = normalize(z, minY, maxY);
 
-    // Load-position influence: top of structure sees higher primary demand
-    // β = 0.6 (load-path sensitivity parameter)
-    const beta = 0.6;
+    // Load-position vertical influence (top of structure sees primary demand)
+    const beta = 0.5;
     const W_i = 1 + beta * z_norm;
 
-    // Demand = W_i * F_norm, clamped to [0,1]
-    const demand = clamp(safeNumber(W_i * F_norm, 0), 0, 1);
+    // Spatial proximity influence to (loadPosX, loadPosZ)
+    const spatialFactor = computeLoadSpatialInfluence(x, z, loadPosX, loadPosZ);
+
+    // Demand = W_i * F_norm * spatialFactor
+    const demand = clamp(safeNumber(W_i * F_norm * (0.35 + 0.65 * spatialFactor), 0), 0, 1);
 
     // Local density tracks demand
     const alpha = 0.8;
@@ -177,7 +177,6 @@ export function computeHoneycombSolidVolume(
   if (cells.length === 0) return 0;
   const tS = wallThicknessMm / 1000; // mm → m
   const lS = cellSizeMm / 1000;      // mm → m
-  // 6 walls per hex, each ≈ l × t × (some height h assumed 25mm)
   const h = 0.025; // m
   const wallVolPerCell = 6 * lS * tS * h;
   return safeNumber(cells.length * wallVolPerCell * 0.5, 0); // 0.5: shared walls

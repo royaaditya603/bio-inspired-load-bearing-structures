@@ -7,7 +7,10 @@ export type ModelType = "solid" | "honeycomb" | "bone";
 /** Central simulation state — single source of truth */
 export interface SimulationState {
   modelType: ModelType;
-  loadN: number;           // Applied load in Newtons [500–3000]
+  loadN: number;           // Applied load in Newtons [500–4500]
+  loadPosX: number;        // Applied load 3D X position [-2.0, 2.0]
+  loadPosY: number;        // Applied load 3D Y position [0.5, 3.5]
+  loadPosZ: number;        // Applied load 3D Z position [-2.0, 2.0]
   porosity: number;        // Void fraction [0–1]
   relativeDensity: number; // Solid fraction [0–1]
   orientationDeg: number;  // Primary strut orientation [0–90]
@@ -72,6 +75,8 @@ export interface ComparisonResult {
   deformation: number;      // visual proxy in mm
   estimatedMassG: number;   // grams
   effectiveStiffness: number; // normalized [0–1]
+  failureThresholdN: number;  // conceptual failure threshold [N]
+  isFailed: boolean;          // whether current load exceeds threshold
 }
 
 /** Output produced by the full simulation run */
@@ -83,6 +88,8 @@ export interface SimulationOutput {
   materialFraction: number;
   estimatedMassG: number;
   effectiveStiffness: number;
+  failureThresholdN: number;
+  isFailed: boolean;
   struts?: StrutElement[];
   hexCells?: HexCell[];
   optimizationIteration: number;

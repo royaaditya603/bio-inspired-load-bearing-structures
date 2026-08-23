@@ -12,10 +12,16 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
-import type { SimulationState, SimulationOutput, StrutElement, HexCell } from "@/lib/simulation/types";
-import { DEFAULT_STATE, PRESETS, MAX_OPT_ITERATIONS } from "@/lib/simulation/constants";
+import type { SimulationState, SimulationOutput } from "@/lib/simulation/types";
+import {
+  DEFAULT_STATE,
+  PRESETS,
+  MAX_OPT_ITERATIONS,
+  THRESHOLD_SOLID_N,
+  THRESHOLD_HONEYCOMB_N,
+  THRESHOLD_BONE_N,
+} from "@/lib/simulation/constants";
 import { clamp, safeNumber } from "@/lib/simulation/normalize";
-import { computeNormalizedLoad } from "@/lib/simulation/loadModel";
 import { computeStressIndex, computeRelativeStiffness } from "@/lib/simulation/stressModel";
 import { computeDeformation } from "@/lib/simulation/deformationModel";
 import {
@@ -84,7 +90,19 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
 
   // ── Compute simulation output ────────────────────────────
   const output = useMemo((): SimulationOutput => {
-    const { loadN, modelType, cellSizeMm, wallThicknessMm, cellCount, orientationDeg, deformationScale, optimizationIteration, relativeDensity } = state;
+    const {
+      loadN,
+      loadPosX,
+      loadPosZ,
+      modelType,
+      cellSizeMm,
+      wallThicknessMm,
+      cellCount,
+      orientationDeg,
+      deformationScale,
+      optimizationIteration,
+      relativeDensity,
+    } = state;
     const rho_base = clamp(relativeDensity, 0.15, 0.75);
 
     if (modelType === "solid") {
@@ -92,6 +110,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       const stressIndex = computeStressIndex(loadN, rho, 1.0);
       const deformation = computeDeformation(loadN, rho, deformationScale, 1.0);
       const massG = estimateMassGrams(1.0 * 8e-5, MATERIAL_PA12.density);
+      const isFailed = loadN >= THRESHOLD_SOLID_N;
       return {
         stressIndex: safeNumber(stressIndex, 0),
         deformation: safeNumber(deformation, 0),
@@ -100,6 +119,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         materialFraction: 1.0,
         estimatedMassG: safeNumber(massG, 0),
         effectiveStiffness: 1.0,
+        failureThresholdN: THRESHOLD_SOLID_N,
+        isFailed,
         optimizationIteration: 0,
       };
     }
@@ -109,10 +130,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       const porosity = computeHoneycombPorosity(rho);
       const stressIndex = computeStressIndex(loadN, rho, 0.85);
       const deformation = computeDeformation(loadN, rho, deformationScale, 0.85);
-      const cells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN);
+      const cells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ);
       const solidVol = computeHoneycombSolidVolume(cells, wallThicknessMm, cellSizeMm);
       const massG = estimateMassGrams(solidVol, MATERIAL_PA12.density);
       const stiffness = computeRelativeStiffness(rho);
+      const isFailed = loadN >= THRESHOLD_HONEYCOMB_N;
       return {
         stressIndex: safeNumber(stressIndex, 0),
         deformation: safeNumber(deformation, 0),
@@ -121,6 +143,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         materialFraction: rho,
         estimatedMassG: safeNumber(massG, 0),
         effectiveStiffness: safeNumber(stiffness, 0),
+        failureThresholdN: THRESHOLD_HONEYCOMB_N,
+        isFailed,
         hexCells: cells,
         optimizationIteration: 0,
       };
@@ -132,7 +156,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const half = (gridN * span) / 2;
     const r_base = clamp(span * 0.12, 0.04, 0.4);
 
-    let struts = generateStrutNetwork(cellSizeMm, cellCount, loadN, orientationDeg, rho_base, 42);
+    let struts = generateStrutNetwork(cellSizeMm, cellCount, loadN, orientationDeg, rho_base, 42, loadPosX, loadPosZ);
 
     if (optimizationIteration > 0) {
       const result = runOptimization(struts, rho_base, r_base, loadN, half, optimizationIteration);
@@ -147,6 +171,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const deformation = computeDeformation(loadN, avgRho, deformationScale, avgOri);
     const solidVol = computeStrutNetworkVolume(struts);
     const massG = estimateMassGrams(solidVol, MATERIAL_PA12.density);
+    const isFailed = loadN >= THRESHOLD_BONE_N;
 
     return {
       stressIndex: safeNumber(stressIndex, 0),
@@ -156,6 +181,8 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       materialFraction: safeNumber(avgRho, rho_base),
       estimatedMassG: safeNumber(massG, 0),
       effectiveStiffness: safeNumber(stiffness, 0),
+      failureThresholdN: THRESHOLD_BONE_N,
+      isFailed,
       struts,
       optimizationIteration,
     };

@@ -80,7 +80,7 @@ function SceneGrid() {
 
 function SceneContent() {
   const { state } = useSimulation();
-  const { modelType, showLoadArrows, loadN } = state;
+  const { modelType, showLoadArrows, loadN, loadPosX, loadPosY, loadPosZ } = state;
 
   return (
     <>
@@ -90,8 +90,15 @@ function SceneContent() {
       <SceneLighting />
       <SceneGrid />
 
-      {/* Load arrow above the structure */}
-      {showLoadArrows && <LoadArrow loadN={loadN} />}
+      {/* 3D Load arrow tracking XYZ position */}
+      {showLoadArrows && (
+        <LoadArrow
+          loadN={loadN}
+          posX={loadPosX}
+          posY={loadPosY}
+          posZ={loadPosZ}
+        />
+      )}
 
       {/* 3D models */}
       {modelType === "honeycomb" && <HoneycombModel />}

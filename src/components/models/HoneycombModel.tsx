@@ -2,7 +2,7 @@
 
 // ============================================================
 // HoneycombModel.tsx — Regular hexagonal cellular 3D structure
-// Bright, high-contrast cellular walls with clean scientific shading
+// Bright, high-contrast cellular walls with localized load deformation
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -13,6 +13,7 @@ import {
   computeHoneycombRelativeDensity,
 } from "@/lib/simulation/honeycombModel";
 import { computeDeformation } from "@/lib/simulation/deformationModel";
+import { computeLoadSpatialInfluence } from "@/lib/simulation/loadModel";
 import { clamp } from "@/lib/simulation/normalize";
 
 // ── Stress-to-colour mapping (Bright Pastel Blue → Pastel Yellow-Gold) ──
@@ -72,6 +73,8 @@ export function HoneycombModel() {
   const { state } = useSimulation();
   const {
     loadN,
+    loadPosX,
+    loadPosZ,
     cellSizeMm,
     wallThicknessMm,
     cellCount,
@@ -82,10 +85,10 @@ export function HoneycombModel() {
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
-  // ── Generate cell data ─────────────────────────────────────
+  // ── Generate cell data with 3D load location ──────────────
   const cells = useMemo(
-    () => generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN),
-    [cellSizeMm, wallThicknessMm, cellCount, loadN]
+    () => generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ),
+    [cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ]
   );
 
   // ── Geometry (shared, reused for instancing) ───────────────
@@ -108,8 +111,10 @@ export function HoneycombModel() {
     const dummy = new THREE.Object3D();
 
     for (const cell of cells) {
+      // Gaussian spatial proximity to (loadPosX, loadPosZ)
+      const spatialFactor = computeLoadSpatialInfluence(cell.centerX, cell.centerZ, loadPosX, loadPosZ);
       const deformY = showDeformation
-        ? -cell.demand * globalDeform * cell.centerZ * 0.1
+        ? -cell.demand * globalDeform * spatialFactor * 0.28
         : 0;
 
       dummy.position.set(cell.centerX, cell.centerY + deformY, cell.centerZ);
@@ -124,7 +129,7 @@ export function HoneycombModel() {
       colors.push(color);
     }
     return { matrices, colors };
-  }, [cells, showStress, showDeformation, globalDeform]);
+  }, [cells, showStress, showDeformation, globalDeform, loadPosX, loadPosZ]);
 
   // ── Apply matrices & colours to InstancedMesh ─────────────
   useLayoutEffect(() => {

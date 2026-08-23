@@ -9,10 +9,11 @@ import { SimulationProvider, useSimulation } from "@/components/simulation/Simul
 import { computeComparison } from "@/lib/simulation/comparison";
 import { SliderControl } from "@/components/ui/SliderControl";
 import type { ComparisonResult } from "@/lib/simulation/types";
+import { LOAD_MIN_N, LOAD_MAX_N } from "@/lib/simulation/constants";
 import styles from "./comparison.module.css";
 
 const MODEL_NAMES: Record<string, string> = {
-  solid: "▪ Solid Baseline",
+  solid: "▪ Solid (Brick)",
   honeycomb: "⬡ Honeycomb",
   bone: "⁜ Bone-Inspired",
 };
@@ -42,6 +43,7 @@ const METRICS: Array<{
   { key: "deformation", label: "Deformation", unit: " su", higherIsBetter: false },
   { key: "estimatedMassG", label: "Est. Mass", unit: " g", higherIsBetter: false },
   { key: "effectiveStiffness", label: "Eff. Stiffness", higherIsBetter: true },
+  { key: "failureThresholdN", label: "Failure Threshold", unit: " N", higherIsBetter: true },
 ];
 
 function BarChart({
@@ -74,7 +76,7 @@ function BarChart({
               />
             </div>
             <span className={styles.barValue} style={{ color: MODEL_COLORS[r.modelType] }}>
-              {isFinite(val) ? val.toFixed(val > 10 ? 1 : 3) : "—"}
+              {isFinite(val) ? val.toFixed(val > 10 ? 0 : 3) : "—"}
               {unit}
             </span>
           </div>
@@ -111,8 +113,8 @@ function ComparisonContent() {
             <SliderControl
               label="Load Force"
               value={state.loadN}
-              min={500}
-              max={3000}
+              min={LOAD_MIN_N}
+              max={LOAD_MAX_N}
               step={50}
               unit=" N"
               accentColor="yellow"
@@ -158,7 +160,7 @@ function ComparisonContent() {
                         className={`${styles.metricVal} ${isBest ? styles.best : ""}`}
                         style={isBest ? { color: MODEL_COLORS[r.modelType] } : {}}
                       >
-                        {isFinite(val) ? val.toFixed(val > 10 ? 1 : 3) : "—"}
+                        {isFinite(val) ? val.toFixed(val > 10 ? (val > 100 ? 0 : 1) : 3) : "—"}
                         {unit}
                       </td>
                     );
@@ -281,6 +283,7 @@ function ComparisonContent() {
                 <div>Stress Index: <strong style={{ color: "#243447" }}>{r.stressIndex.toFixed(1)} /100</strong></div>
                 <div>Deformation: <strong style={{ color: "#243447" }}>{r.deformation.toFixed(4)} su</strong></div>
                 <div>Eff. Stiffness: <strong style={{ color: "#243447" }}>{r.effectiveStiffness.toFixed(4)}</strong></div>
+                <div>Threshold: <strong style={{ color: r.isFailed ? "#D9534F" : "#243447" }}>{r.failureThresholdN} N {r.isFailed ? "(EXCEEDED)" : "(INTACT)"}</strong></div>
               </div>
             </div>
           ))}

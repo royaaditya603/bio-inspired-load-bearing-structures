@@ -4,9 +4,27 @@
 
 import type { MaterialProperties, SimulationState } from "./types";
 
+// ─── Conceptual Structural Load Failure Thresholds ──────────
+// SOLID < HONEYCOMB < BONE-INSPIRED
+// Conceptual simulation assumptions only (not universal material limits)
+export const THRESHOLD_SOLID_N = 2000;
+export const THRESHOLD_HONEYCOMB_N = 3500;
+export const THRESHOLD_BONE_N = 4000;
+
 // ─── Load range ──────────────────────────────────────────────
 export const LOAD_MIN_N = 500;
-export const LOAD_MAX_N = 3000;
+export const LOAD_MAX_N = 4500;
+
+// ─── 3D Load Position Bounds ─────────────────────────────────
+export const LOAD_POS_X_MIN = -2.0;
+export const LOAD_POS_X_MAX = 2.0;
+export const LOAD_POS_Y_MIN = 0.5;
+export const LOAD_POS_Y_MAX = 3.5;
+export const LOAD_POS_Z_MIN = -2.0;
+export const LOAD_POS_Z_MAX = 2.0;
+
+/** Gaussian spatial influence radius σ for localized load demand */
+export const LOAD_INFLUENCE_SIGMA = 1.3;
 
 // ─── Porosity / density ranges ───────────────────────────────
 export const RHO_MIN = 0.10;
@@ -39,6 +57,9 @@ export const EPSILON = 1e-9;
 export const DEFAULT_STATE: SimulationState = {
   modelType: "honeycomb",
   loadN: 1500,
+  loadPosX: 0.0,
+  loadPosY: 2.5,
+  loadPosZ: 0.0,
   porosity: 0.65,
   relativeDensity: 0.35,
   orientationDeg: 60,
@@ -76,6 +97,9 @@ export const REFERENCE_STRESS_PA = 40e6;
 export const PRESETS = {
   lightweight: {
     loadN: 800,
+    loadPosX: 0.0,
+    loadPosY: 2.5,
+    loadPosZ: 0.0,
     porosity: 0.78,
     relativeDensity: 0.22,
     wallThicknessMm: 1.5,
@@ -86,6 +110,9 @@ export const PRESETS = {
   },
   balanced: {
     loadN: 1500,
+    loadPosX: 0.0,
+    loadPosY: 2.5,
+    loadPosZ: 0.0,
     porosity: 0.65,
     relativeDensity: 0.35,
     wallThicknessMm: 2.4,
@@ -96,6 +123,9 @@ export const PRESETS = {
   },
   highLoad: {
     loadN: 2800,
+    loadPosX: 0.0,
+    loadPosY: 2.5,
+    loadPosZ: 0.0,
     porosity: 0.40,
     relativeDensity: 0.60,
     wallThicknessMm: 4.0,

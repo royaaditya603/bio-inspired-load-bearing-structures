@@ -7,7 +7,6 @@
 
 import type { SimulationState, ComparisonResult } from "./types";
 import { clamp, safeNumber } from "./normalize";
-import { computeNormalizedLoad } from "./loadModel";
 import { computeStressIndex, computeRelativeStiffness } from "./stressModel";
 import { computeDeformation } from "./deformationModel";
 import {
@@ -22,23 +21,26 @@ import {
   computeAverageOrientationFactor,
   computeStrutNetworkVolume,
   computeBoneRelativeStiffness,
-  computeOrientationFactor,
 } from "./boneInspiredModel";
 import {
   estimateMassGrams,
-  estimateSolidVolumeFromDensity,
 } from "./materialModel";
-import { MATERIAL_PA12, BOUNDING_VOLUME_M3 } from "./constants";
-import { MIN_ORIENTATION_FACTOR } from "./constants";
+import {
+  MATERIAL_PA12,
+  BOUNDING_VOLUME_M3,
+  THRESHOLD_SOLID_N,
+  THRESHOLD_HONEYCOMB_N,
+  THRESHOLD_BONE_N,
+} from "./constants";
 
 /**
  * Compute comparison metrics for all three structural strategies
  * using the SAME applied load from the simulation state.
  */
 export function computeComparison(state: SimulationState): ComparisonResult[] {
-  const { loadN, cellSizeMm, wallThicknessMm, cellCount, orientationDeg } = state;
+  const { loadN, cellSizeMm, wallThicknessMm, cellCount, orientationDeg, loadPosX, loadPosZ } = state;
 
-  // ─── SOLID ──────────────────────────────────────────────────
+  // ─── SOLID (Conventional Masonry / Brick Structure) ─────────
   const solidRho = 1.0;
   const solidPorosity = 0.0;
   const solidStressIndex = computeStressIndex(loadN, solidRho, 1.0);
@@ -56,6 +58,8 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
     deformation: safeNumber(solidDeformation, 0),
     estimatedMassG: safeNumber(solidMass, 0),
     effectiveStiffness: safeNumber(solidStiffness, 1),
+    failureThresholdN: THRESHOLD_SOLID_N,
+    isFailed: loadN >= THRESHOLD_SOLID_N,
   };
 
   // ─── HONEYCOMB ──────────────────────────────────────────────
@@ -63,7 +67,7 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
   const hcPorosity = computeHoneycombPorosity(hcRho);
   const hcStressIndex = computeStressIndex(loadN, hcRho, 0.85);
   const hcDeformation = computeDeformation(loadN, hcRho, 1.0, 0.85);
-  const hcCells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN);
+  const hcCells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ);
   const hcSolidVol = computeHoneycombSolidVolume(hcCells, wallThicknessMm, cellSizeMm);
   const hcMass = estimateMassGrams(hcSolidVol, MATERIAL_PA12.density);
   const hcStiffness = computeRelativeStiffness(hcRho);
@@ -77,6 +81,8 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
     deformation: safeNumber(hcDeformation, 0),
     estimatedMassG: safeNumber(hcMass, 0),
     effectiveStiffness: safeNumber(hcStiffness, 0),
+    failureThresholdN: THRESHOLD_HONEYCOMB_N,
+    isFailed: loadN >= THRESHOLD_HONEYCOMB_N,
   };
 
   // ─── BONE-INSPIRED ──────────────────────────────────────────
@@ -87,7 +93,9 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
     loadN,
     orientationDeg,
     rho_base,
-    42
+    42,
+    loadPosX,
+    loadPosZ
   );
   const boneAvgRho = computeAverageRelativeDensity(struts);
   const bonePorosity = clamp(1 - boneAvgRho, 0, 1);
@@ -112,6 +120,8 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
     deformation: safeNumber(boneDeformation, 0),
     estimatedMassG: safeNumber(boneMass, 0),
     effectiveStiffness: safeNumber(boneStiffness, 0),
+    failureThresholdN: THRESHOLD_BONE_N,
+    isFailed: loadN >= THRESHOLD_BONE_N,
   };
 
   return [solidResult, honeycombResult, boneResult];

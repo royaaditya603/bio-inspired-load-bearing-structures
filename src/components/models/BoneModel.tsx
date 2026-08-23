@@ -2,13 +2,14 @@
 
 // ============================================================
 // BoneModel.tsx — Irregular trabecular-inspired strut lattice
-// Bright, high-contrast variable-density lattice struts
+// Bright, high-contrast variable-density lattice with 3D localized load
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import { clamp } from "@/lib/simulation/normalize";
+import { computeLoadSpatialInfluence } from "@/lib/simulation/loadModel";
 import type { StrutElement } from "@/lib/simulation/types";
 
 // ── Stress-to-colour mapping (Bright Pastel Blue → Pastel Yellow-Gold) ──
@@ -55,9 +56,18 @@ interface BoneInstancedProps {
   showStress: boolean;
   showDeformation: boolean;
   globalDeform: number;
+  loadPosX: number;
+  loadPosZ: number;
 }
 
-function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: BoneInstancedProps) {
+function BoneInstanced({
+  struts,
+  showStress,
+  showDeformation,
+  globalDeform,
+  loadPosX,
+  loadPosZ,
+}: BoneInstancedProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
   // Shared cylinder geometry (reused for all struts)
@@ -72,14 +82,18 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
     const colors: THREE.Color[] = [];
 
     for (const s of struts) {
-      const deformY = showDeformation ? -s.demand * globalDeform * 0.15 : 0;
+      const mx = (s.startX + s.endX) / 2;
+      const mz = (s.startZ + s.endZ) / 2;
+      const spatialFactor = computeLoadSpatialInfluence(mx, mz, loadPosX, loadPosZ);
+      const deformY = showDeformation ? -s.demand * globalDeform * spatialFactor * 0.22 : 0;
+
       matrices.push(strutMatrix(s, deformY));
       colors.push(
         showStress ? demandToColor(s.demand) : DEFAULT_STRUCTURAL_COLOR
       );
     }
     return { matrices, colors };
-  }, [struts, showStress, showDeformation, globalDeform]);
+  }, [struts, showStress, showDeformation, globalDeform, loadPosX, loadPosZ]);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;
@@ -112,7 +126,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
 
 export function BoneModel() {
   const { state, output } = useSimulation();
-  const { showStress, showDeformation, deformationScale } = state;
+  const { showStress, showDeformation, deformationScale, loadPosX, loadPosZ } = state;
 
   const struts = output.struts ?? [];
   const globalDeform = output.deformation * deformationScale;
@@ -133,6 +147,8 @@ export function BoneModel() {
         showStress={showStress}
         showDeformation={showDeformation}
         globalDeform={globalDeform}
+        loadPosX={loadPosX}
+        loadPosZ={loadPosZ}
       />
     </group>
   );
