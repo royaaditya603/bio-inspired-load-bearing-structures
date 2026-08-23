@@ -1,0 +1,122 @@
+.intro {
+  font-size: 0.9rem;
+  color: #A9BCD2;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.loadControl {
+  margin-bottom: 1.5rem;
+  background: #102D52;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #294B6E;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #A9BCD2;
+  background: #0D2447;
+  border-bottom: 1px solid #294B6E;
+}
+
+.table th:first-child { text-align: left; }
+
+.table td {
+  padding: 0.65rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(41, 75, 110, 0.35);
+  color: #A9BCD2;
+}
+
+.table tr:last-child td { border-bottom: none; }
+
+.table tr:nth-child(even) td { background: rgba(7, 26, 54, 0.4); }
+
+.metricName {
+  text-align: left !important;
+  color: #F4F8FC !important;
+  font-weight: 600;
+}
+
+.metricVal { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.best {
+  font-weight: 800 !important;
+}
+
+.bestBadge { text-align: center; }
+
+/* Bar chart */
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.barLabel {
+  font-size: 0.7rem;
+  color: #A9BCD2;
+  min-width: 100px;
+  white-space: nowrap;
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: #294B6E;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.barValue {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Experimental card */
+.expCard {
+  border-color: rgba(242, 201, 76, 0.25) !important;
+  background: rgba(242, 201, 76, 0.04) !important;
+}
+
+.simCard {
+  border-color: rgba(78, 169, 224, 0.25) !important;
+  background: rgba(78, 169, 224, 0.04) !important;
+}
+
+.expHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

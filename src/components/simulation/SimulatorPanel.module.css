@@ -1,0 +1,157 @@
+.panel {
+  width: 320px;
+  min-width: 280px;
+  height: 100%;
+  overflow-y: auto;
+  background: #0D2447;
+  border-left: 1px solid #294B6E;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 1rem;
+}
+
+.section {
+  padding: 1rem 1.1rem 0.9rem;
+  border-bottom: 1px solid rgba(41, 75, 110, 0.5);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #A9BCD2;
+  margin-bottom: 0.75rem;
+}
+
+.sectionIcon {
+  color: #4EA9E0;
+  font-size: 0.9rem;
+}
+
+/* Model type tabs */
+.modelTabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.modelTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.3rem;
+  border-radius: 8px;
+  border: 1.5px solid #294B6E;
+  background: transparent;
+  color: #A9BCD2;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.modelTab:hover {
+  border-color: #4EA9E0;
+  color: #F4F8FC;
+  background: rgba(78, 169, 224, 0.08);
+}
+
+.modelTabActive {
+  border-color: #4EA9E0;
+  background: rgba(78, 169, 224, 0.15);
+  color: #86CFF5;
+}
+
+.modelIcon {
+  font-size: 1.1rem;
+}
+
+/* Presets */
+.presetRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.presetBtn {
+  font-size: 0.68rem !important;
+  padding: 0.35rem 0.4rem !important;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Slider stack */
+.sliderStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Toggle stack */
+.toggleStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+/* Optimization */
+.optDesc {
+  font-size: 0.75rem;
+  color: #6A8BA8;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.optProgress {
+  margin-bottom: 0.75rem;
+}
+
+.optLabel {
+  font-size: 0.72rem;
+  color: #A9BCD2;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.optBtn {
+  width: 100%;
+  justify-content: center;
+}
+
+.optBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Stress legend */
+.legendBar {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #4EA9E0, #7FC8A9, #F2C94C);
+  margin-bottom: 0.3rem;
+}
+
+.legendLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #6A8BA8;
+  align-items: center;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid #294B6E;
+  border-bottom: 1px solid #294B6E;
+  margin-bottom: 0.75rem;
+}

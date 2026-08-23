@@ -1,0 +1,253 @@
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.deckSubtitle {
+  font-size: 0.85rem;
+  color: #A9BCD2;
+  margin-top: 0.2rem;
+}
+
+.topActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.thumbnailDrawer {
+  background: #0D2447;
+  border: 1px solid #294B6E;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.thumbGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.thumbCard {
+  background: #102D52;
+  border: 1px solid #294B6E;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  color: #A9BCD2;
+  transition: all 0.15s;
+}
+
+.thumbCard:hover {
+  background: #153560;
+  border-color: #4EA9E0;
+  color: #F4F8FC;
+}
+
+.thumbActive {
+  background: rgba(78, 169, 224, 0.15);
+  border-color: #4EA9E0;
+  color: #86CFF5;
+}
+
+.thumbNum {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #F2C94C;
+  margin-bottom: 0.25rem;
+}
+
+.thumbTitle {
+  font-size: 0.78rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+/* Slide Card */
+.slideCard {
+  background: #0D2447;
+  border: 1px solid #294B6E;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem;
+  position: relative;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+.slideHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.slideCounter {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6A8BA8;
+  font-family: monospace;
+}
+
+.slideTitle {
+  font-size: 2rem;
+  color: #F4F8FC;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+
+.slideSubtitle {
+  font-size: 1.05rem;
+  color: #86CFF5;
+  font-weight: 500;
+  margin-bottom: 1.75rem;
+  line-height: 1.4;
+}
+
+.slideContent {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  margin-bottom: 2rem;
+}
+
+.bulletsSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bulletList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.bulletItem {
+  font-size: 1rem;
+  color: #E2EEF9;
+  line-height: 1.6;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.bulletItem::before {
+  content: "▹";
+  position: absolute;
+  left: 0;
+  color: #F2C94C;
+  font-weight: 800;
+}
+
+.calloutBox {
+  background: rgba(242, 201, 76, 0.08);
+  border-left: 3px solid #F2C94C;
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  color: #F4F8FC;
+  margin-top: 1.5rem;
+  line-height: 1.5;
+}
+
+.statsSidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.statPill {
+  background: #102D52;
+  border: 1px solid #294B6E;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.statVal {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #F2C94C;
+  letter-spacing: -0.02em;
+}
+
+.statLbl {
+  font-size: 0.75rem;
+  color: #A9BCD2;
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+/* Progress bar */
+.progressContainer {
+  height: 4px;
+  background: #294B6E;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #4EA9E0, #F2C94C);
+  transition: width 0.3s ease;
+}
+
+/* Footer controls */
+.slideFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #294B6E;
+  padding-top: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.navButtons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.keyHint {
+  font-size: 0.75rem;
+  color: #6A8BA8;
+}
+
+.keyHint kbd {
+  background: #102D52;
+  border: 1px solid #294B6E;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  color: #F4F8FC;
+  font-family: monospace;
+}
+
+@media (max-width: 900px) {
+  .slideContent {
+    flex-direction: column;
+  }
+  .statsSidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .statPill {
+    flex: 1;
+    min-width: 120px;
+  }
+  .slideCard {
+    padding: 1.5rem;
+  }
+}
