@@ -3,15 +3,69 @@
 }
 
 .leadText {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.7;
-  color: #F4F8FC;
+  color: #243447;
   max-width: 900px;
 }
 
+/* Visual Flow */
+.flowCard {
+  background: #FFFFFF;
+  border: 1px solid #D7E2EA;
+  padding: 1.5rem 1.75rem;
+}
+
+.flowTitle {
+  font-size: 1.1rem;
+  color: #243447;
+  margin-bottom: 1.25rem;
+}
+
+.bioFlow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bioNode {
+  flex: 1;
+  min-width: 170px;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.bioNodeTitle {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #243447;
+  letter-spacing: 0.04em;
+}
+
+.bioNodeDesc {
+  font-size: 0.72rem;
+  color: #62748A;
+  line-height: 1.4;
+}
+
+.bioArrow {
+  display: flex;
+  align-items: center;
+  color: #D4A017;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+/* Paper Card */
 .paperCard {
-  border-left: 4px solid #F2C94C;
-  background: #0D2447;
+  border-left: 4px solid #F8E7A6;
+  background: #FFFFFF;
   margin-bottom: 2rem;
 }
 
@@ -23,22 +77,22 @@
 }
 
 .paperTitle {
-  font-size: 1.4rem;
-  color: #F4F8FC;
+  font-size: 1.35rem;
+  color: #243447;
   margin-bottom: 0.4rem;
   line-height: 1.3;
 }
 
 .paperAuthors {
-  color: #86CFF5;
+  color: #3A88C8;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
 .paperSummary {
   font-size: 0.9rem;
-  line-height: 1.6;
-  color: #A9BCD2;
+  line-height: 1.65;
+  color: #62748A;
   margin-bottom: 1.5rem;
 }
 
@@ -46,13 +100,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #294B6E;
-  padding-top: 1rem;
+  border-top: 1px solid #E6EEF4;
+  padding-top: 1.1rem;
   margin-top: 1rem;
 }
 
 .benchmarkHeader h4 {
-  color: #F4F8FC;
+  color: #243447;
   font-size: 0.95rem;
 }
 
@@ -60,16 +114,16 @@
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #F2C94C;
-  background: rgba(242, 201, 76, 0.1);
-  padding: 0.2rem 0.6rem;
+  color: #634B00;
+  background: #FFF5CF;
+  padding: 0.25rem 0.65rem;
   border-radius: 4px;
-  border: 1px solid rgba(242, 201, 76, 0.3);
+  border: 1px solid #F5E5AD;
 }
 
 .metricBox {
-  background: #102D52;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
@@ -78,30 +132,30 @@
 .metricVal {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #F2C94C;
+  color: #D4A017;
   letter-spacing: -0.02em;
 }
 
 .metricLabel {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #F4F8FC;
+  color: #243447;
   margin-top: 0.25rem;
 }
 
 .metricSub {
   font-size: 0.7rem;
-  color: #6A8BA8;
+  color: #62748A;
   margin-top: 0.2rem;
 }
 
 .envelopeStat {
-  background: rgba(78, 169, 224, 0.08);
-  border: 1px solid rgba(78, 169, 224, 0.25);
+  background: #DCEFFA;
+  border: 1px solid #C4E4F7;
   border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.1rem;
   font-size: 0.85rem;
-  color: #86CFF5;
+  color: #1C4C74;
   margin-top: 1.25rem;
 }
 
@@ -118,7 +172,7 @@
 
 .cardBody {
   font-size: 0.88rem;
-  color: #A9BCD2;
+  color: #62748A;
   line-height: 1.6;
   margin-bottom: 0.75rem;
 }
@@ -126,18 +180,18 @@
 .list {
   padding-left: 1.2rem;
   font-size: 0.85rem;
-  color: #A9BCD2;
+  color: #62748A;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
 .list strong {
-  color: #F4F8FC;
+  color: #243447;
 }
 
 .analogyCard {
-  background: #0D2447;
+  background: #FFFFFF;
 }
 
 .analogyGrid {
@@ -147,8 +201,8 @@
 }
 
 .analogyCol {
-  background: #102D52;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 10px;
   padding: 1.25rem;
   display: flex;
@@ -161,43 +215,50 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #86CFF5;
-  border-bottom: 1px solid #294B6E;
+  border-bottom: 1px solid;
   padding-bottom: 0.5rem;
 }
 
 .analogyItem {
   font-size: 0.82rem;
-  color: #A9BCD2;
+  color: #62748A;
   line-height: 1.5;
 }
 
 .analogyItem strong {
-  color: #F4F8FC;
+  color: #243447;
 }
 
 .formulaDesc {
   font-size: 0.8rem;
-  color: #A9BCD2;
+  color: #62748A;
   margin-bottom: 0.6rem;
   line-height: 1.4;
 }
 
 .equation {
-  background: #071A36;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   font-family: monospace;
   font-size: 0.78rem;
-  color: #F2C94C;
+  color: #1C4C74;
   margin-bottom: 0.4rem;
   text-align: center;
   overflow-x: auto;
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {
   .analogyGrid {
     grid-template-columns: 1fr;
+  }
+  .bioFlow {
+    flex-direction: column;
+  }
+  .bioArrow {
+    justify-content: center;
+    transform: rotate(90deg);
   }
 }

@@ -8,8 +8,8 @@
 }
 
 .deckSubtitle {
-  font-size: 0.85rem;
-  color: #A9BCD2;
+  font-size: 0.88rem;
+  color: #62748A;
   margin-top: 0.2rem;
 }
 
@@ -20,66 +20,67 @@
 }
 
 .thumbnailDrawer {
-  background: #0D2447;
-  border: 1px solid #294B6E;
+  background: #FFFFFF;
+  border: 1px solid #D7E2EA;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.1rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(36, 52, 71, 0.06);
   animation: fadeIn 0.2s ease;
 }
 
 .thumbGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 0.75rem;
 }
 
 .thumbCard {
-  background: #102D52;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 8px;
   padding: 0.75rem;
   text-align: left;
   cursor: pointer;
-  color: #A9BCD2;
-  transition: all 0.15s;
+  color: #62748A;
+  transition: all 0.15s ease;
 }
 
 .thumbCard:hover {
-  background: #153560;
-  border-color: #4EA9E0;
-  color: #F4F8FC;
+  background: #DCEFFA;
+  border-color: #A9D8F5;
+  color: #1C4C74;
 }
 
 .thumbActive {
-  background: rgba(78, 169, 224, 0.15);
-  border-color: #4EA9E0;
-  color: #86CFF5;
+  background: #DCEFFA !important;
+  border-color: #3A88C8 !important;
+  color: #1C4C74 !important;
 }
 
 .thumbNum {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #F2C94C;
+  color: #D4A017;
   margin-bottom: 0.25rem;
 }
 
 .thumbTitle {
   font-size: 0.78rem;
-  line-height: 1.3;
+  line-height: 1.35;
   font-weight: 600;
 }
 
 /* Slide Card */
 .slideCard {
-  background: #0D2447;
-  border: 1px solid #294B6E;
+  background: #FFFFFF;
+  border: 1px solid #D7E2EA;
   min-height: 520px;
   display: flex;
   flex-direction: column;
   padding: 2.5rem;
   position: relative;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 28px rgba(36, 52, 71, 0.06);
 }
 
 .slideHeader {
@@ -92,20 +93,20 @@
 .slideCounter {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #6A8BA8;
+  color: #62748A;
   font-family: monospace;
 }
 
 .slideTitle {
   font-size: 2rem;
-  color: #F4F8FC;
+  color: #243447;
   line-height: 1.2;
   margin-bottom: 0.4rem;
 }
 
 .slideSubtitle {
   font-size: 1.05rem;
-  color: #86CFF5;
+  color: #3A88C8;
   font-weight: 500;
   margin-bottom: 1.75rem;
   line-height: 1.4;
@@ -129,12 +130,12 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.95rem;
 }
 
 .bulletItem {
   font-size: 1rem;
-  color: #E2EEF9;
+  color: #243447;
   line-height: 1.6;
   position: relative;
   padding-left: 1.5rem;
@@ -144,19 +145,22 @@
   content: "▹";
   position: absolute;
   left: 0;
-  color: #F2C94C;
+  color: #D4A017;
   font-weight: 800;
 }
 
 .calloutBox {
-  background: rgba(242, 201, 76, 0.08);
-  border-left: 3px solid #F2C94C;
+  background: #FFFDF5;
+  border-left: 4px solid #F8E7A6;
   border-radius: 4px;
-  padding: 0.85rem 1rem;
+  padding: 0.85rem 1.1rem;
   font-size: 0.9rem;
-  color: #F4F8FC;
+  color: #243447;
   margin-top: 1.5rem;
   line-height: 1.5;
+  border-top: 1px solid #F5E5AD;
+  border-right: 1px solid #F5E5AD;
+  border-bottom: 1px solid #F5E5AD;
 }
 
 .statsSidebar {
@@ -168,8 +172,8 @@
 }
 
 .statPill {
-  background: #102D52;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
@@ -178,29 +182,30 @@
 .statVal {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #F2C94C;
+  color: #D4A017;
   letter-spacing: -0.02em;
 }
 
 .statLbl {
   font-size: 0.75rem;
-  color: #A9BCD2;
+  color: #62748A;
   margin-top: 0.2rem;
   font-weight: 500;
 }
 
 /* Progress bar */
 .progressContainer {
-  height: 4px;
-  background: #294B6E;
-  border-radius: 2px;
+  height: 6px;
+  background: #EEF4F8;
+  border-radius: 3px;
   overflow: hidden;
   margin-bottom: 1.5rem;
+  border: 1px solid #D7E2EA;
 }
 
 .progressBar {
   height: 100%;
-  background: linear-gradient(90deg, #4EA9E0, #F2C94C);
+  background: linear-gradient(90deg, #A9D8F5, #F8E7A6);
   transition: width 0.3s ease;
 }
 
@@ -209,7 +214,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #294B6E;
+  border-top: 1px solid #E6EEF4;
   padding-top: 1.25rem;
   flex-wrap: wrap;
   gap: 1rem;
@@ -222,15 +227,15 @@
 
 .keyHint {
   font-size: 0.75rem;
-  color: #6A8BA8;
+  color: #62748A;
 }
 
 .keyHint kbd {
-  background: #102D52;
-  border: 1px solid #294B6E;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
   border-radius: 4px;
   padding: 0.15rem 0.4rem;
-  color: #F4F8FC;
+  color: #243447;
   font-family: monospace;
 }
 

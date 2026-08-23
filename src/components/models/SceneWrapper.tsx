@@ -6,7 +6,7 @@
 
 import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, Grid, GizmoHelper, GizmoViewport } from "@react-three/drei";
+import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from "@react-three/drei";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import { HoneycombModel } from "./HoneycombModel";
 import { BoneModel } from "./BoneModel";
@@ -16,16 +16,16 @@ import { LoadArrow } from "./LoadArrow";
 function SceneLighting() {
   return (
     <>
-      <ambientLight intensity={0.4} color="#c8dff5" />
+      <ambientLight intensity={0.8} color="#FFFFFF" />
       <directionalLight
-        position={[5, 10, 5]}
-        intensity={1.4}
-        color="#ffffff"
+        position={[6, 12, 6]}
+        intensity={1.2}
+        color="#FFFFFF"
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
-      <directionalLight position={[-5, 5, -5]} intensity={0.4} color="#4EA9E0" />
-      <pointLight position={[0, -8, 0]} intensity={0.3} color="#F2C94C" />
+      <directionalLight position={[-6, 6, -6]} intensity={0.5} color="#DCEFFA" />
+      <directionalLight position={[0, -6, 0]} intensity={0.3} color="#FFF5CF" />
     </>
   );
 }
@@ -37,10 +37,10 @@ function SceneGrid() {
       args={[20, 20]}
       cellSize={0.5}
       cellThickness={0.5}
-      cellColor="#1a3a5c"
+      cellColor="#D7E2EA"
       sectionSize={2}
       sectionThickness={1}
-      sectionColor="#294B6E"
+      sectionColor="#B8CBD8"
       fadeDistance={20}
       fadeStrength={1}
       infiniteGrid
@@ -75,8 +75,8 @@ function SceneContent() {
 
       <GizmoHelper alignment="bottom-left" margin={[60, 60]}>
         <GizmoViewport
-          axisColors={["#F2C94C", "#4EA9E0", "#86CFF5"]}
-          labelColor="#F4F8FC"
+          axisColors={["#D4A017", "#3A88C8", "#5BA8DE"]}
+          labelColor="#243447"
         />
       </GizmoHelper>
     </>
@@ -89,13 +89,24 @@ interface SceneWrapperProps {
 
 export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
   return (
-    <div style={{ width: "100%", height, background: "#071A36", borderRadius: 16, overflow: "hidden" }}>
+    <div
+      style={{
+        width: "100%",
+        height,
+        background: "#EEF4F8",
+        borderRadius: 16,
+        overflow: "hidden",
+        border: "1px solid #D7E2EA",
+      }}
+    >
       <Canvas
         camera={{ position: [8, 6, 8], fov: 45, near: 0.1, far: 200 }}
         shadows
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: false }}
-        style={{ background: "linear-gradient(180deg, #071A36 0%, #050F20 100%)" }}
+        style={{
+          background: "linear-gradient(180deg, #F7F9FC 0%, #EEF4F8 100%)",
+        }}
       >
         <Suspense fallback={null}>
           <SceneContent />

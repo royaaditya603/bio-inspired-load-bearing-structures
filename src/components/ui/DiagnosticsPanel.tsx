@@ -27,17 +27,19 @@ export function DiagnosticsPanel() {
       <button
         onClick={() => setOpen((o) => !o)}
         style={{
-          background: "#1a1a2e",
-          border: "1px solid #4EA9E0",
+          background: "#FFFFFF",
+          border: "1px solid #D7E2EA",
           borderRadius: 8,
-          color: "#4EA9E0",
+          color: "#1C4C74",
           padding: "0.4rem 0.8rem",
           fontSize: "0.75rem",
+          fontWeight: 600,
           cursor: "pointer",
           fontFamily: "monospace",
           display: "block",
           width: "100%",
           textAlign: "left",
+          boxShadow: "0 2px 8px rgba(36, 52, 71, 0.08)",
         }}
       >
         🔬 DIAGNOSTICS {open ? "▼" : "▶"}
@@ -46,18 +48,19 @@ export function DiagnosticsPanel() {
       {open && (
         <div
           style={{
-            background: "rgba(5, 15, 32, 0.97)",
-            border: "1px solid #294B6E",
+            background: "#FFFFFF",
+            border: "1px solid #D7E2EA",
             borderRadius: 8,
             padding: "0.75rem",
             marginTop: 4,
             fontFamily: "monospace",
             fontSize: "0.7rem",
-            color: "#86CFF5",
+            color: "#243447",
             lineHeight: 1.7,
+            boxShadow: "0 8px 24px rgba(36, 52, 71, 0.12)",
           }}
         >
-          <div style={{ color: "#F2C94C", fontWeight: 700, marginBottom: 4 }}>
+          <div style={{ color: "#D4A017", fontWeight: 700, marginBottom: 4 }}>
             STATE
           </div>
           {(
@@ -75,14 +78,14 @@ export function DiagnosticsPanel() {
             ] as [string, string | number][]
           ).map(([k, v]) => (
             <div key={k}>
-              <span style={{ color: "#A9BCD2", minWidth: 120, display: "inline-block" }}>
+              <span style={{ color: "#62748A", minWidth: 120, display: "inline-block" }}>
                 {k}:
               </span>{" "}
-              <span style={{ color: "#F4F8FC" }}>{v}</span>
+              <span style={{ color: "#243447", fontWeight: 600 }}>{v}</span>
             </div>
           ))}
 
-          <div style={{ color: "#F2C94C", fontWeight: 700, margin: "8px 0 4px" }}>
+          <div style={{ color: "#D4A017", fontWeight: 700, margin: "8px 0 4px" }}>
             OUTPUT
           </div>
           {(
@@ -100,13 +103,14 @@ export function DiagnosticsPanel() {
             ] as [string, string | number][]
           ).map(([k, v]) => (
             <div key={k}>
-              <span style={{ color: "#A9BCD2", minWidth: 120, display: "inline-block" }}>
+              <span style={{ color: "#62748A", minWidth: 120, display: "inline-block" }}>
                 {k}:
               </span>{" "}
               <span
                 style={{
                   color:
-                    typeof v === "string" && v.includes("NaN") ? "#FF6B6B" : "#F4F8FC",
+                    typeof v === "string" && v.includes("NaN") ? "#D9534F" : "#243447",
+                  fontWeight: 600,
                 }}
               >
                 {v}

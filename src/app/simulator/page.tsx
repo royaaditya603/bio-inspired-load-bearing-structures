@@ -22,9 +22,9 @@ function SimulatorContent() {
       <div className={styles.viewport}>
         <div className={styles.viewportHeader}>
           <div className={styles.modelBadge}>
-            {state.modelType === "solid" && "▪ Solid Baseline"}
-            {state.modelType === "honeycomb" && "⬡ Honeycomb Structure"}
-            {state.modelType === "bone" && "⁜ Bone-Inspired Lattice"}
+            {state.modelType === "solid" && "▪ Solid Baseline (Monolithic)"}
+            {state.modelType === "honeycomb" && "⬡ Honeycomb Structure (Periodic)"}
+            {state.modelType === "bone" && "⁜ Bone-Inspired Lattice (Anisotropic)"}
           </div>
           <div className={styles.viewportNote}>
             <span>Exaggerated deformation for visualization</span>
@@ -66,7 +66,7 @@ function SimulatorContent() {
             label="Porosity"
             value={output.porosity}
             sublabel="Void fraction"
-            accent="yellow"
+            accent="green"
             size="md"
           />
           <MetricCard

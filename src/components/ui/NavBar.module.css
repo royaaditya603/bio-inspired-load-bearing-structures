@@ -4,14 +4,15 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(7, 26, 54, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid #294B6E;
+  border-bottom: 1px solid #D7E2EA;
   height: 64px;
+  box-shadow: 0 1px 3px rgba(36, 52, 71, 0.04);
 }
 
 .inner {
-  max-width: 1400px;
+  max-width: 1360px;
   margin: 0 auto;
   padding: 0 1.5rem;
   height: 100%;
@@ -23,54 +24,54 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.55rem;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .logoIcon {
-  font-size: 1.4rem;
-  color: #F2C94C;
+  font-size: 1.35rem;
+  color: #D4A017;
   line-height: 1;
 }
 
 .logoText {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #F4F8FC;
+  color: #243447;
   letter-spacing: -0.02em;
 }
 
 .logoAccent {
-  color: #4EA9E0;
+  color: #3A88C8;
 }
 
 .links {
   display: flex;
   list-style: none;
-  gap: 0.25rem;
+  gap: 0.35rem;
   margin: 0 auto;
 }
 
 .link {
   display: block;
-  padding: 0.45rem 0.9rem;
+  padding: 0.45rem 0.95rem;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  color: #A9BCD2;
+  color: #62748A;
   text-decoration: none;
-  transition: color 0.15s, background 0.15s;
+  transition: all 0.15s ease;
 }
 
 .link:hover {
-  color: #F4F8FC;
-  background: rgba(78, 169, 224, 0.1);
+  color: #243447;
+  background: #EEF4F8;
 }
 
 .link.active {
-  color: #4EA9E0;
-  background: rgba(78, 169, 224, 0.12);
+  color: #1C4C74;
+  background: #DCEFFA;
   font-weight: 600;
 }
 
@@ -93,9 +94,9 @@
 
 .hamburger span {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 2px;
-  background: #F4F8FC;
+  background: #243447;
   border-radius: 2px;
   transition: background 0.2s;
 }
@@ -104,25 +105,26 @@
   display: flex;
   flex-direction: column;
   padding: 0.75rem 1.5rem 1rem;
-  background: #0D2447;
-  border-top: 1px solid #294B6E;
+  background: #FFFFFF;
+  border-top: 1px solid #D7E2EA;
   gap: 0.25rem;
+  box-shadow: 0 8px 16px rgba(36, 52, 71, 0.08);
 }
 
 .mobileLink {
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  color: #A9BCD2;
+  color: #62748A;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
-  transition: color 0.15s, background 0.15s;
+  transition: all 0.15s ease;
 }
 
 .mobileLink:hover,
 .mobileLink.active {
-  color: #4EA9E0;
-  background: rgba(78, 169, 224, 0.1);
+  color: #1C4C74;
+  background: #DCEFFA;
 }
 
 @media (max-width: 768px) {

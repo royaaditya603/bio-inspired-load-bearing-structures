@@ -5,7 +5,6 @@
 // ============================================================
 
 import React, { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import {
@@ -15,19 +14,18 @@ import {
 import { computeDeformation } from "@/lib/simulation/deformationModel";
 import { clamp } from "@/lib/simulation/normalize";
 
-// ── Stress-to-colour mapping (blue → yellow) ──────────────────
+// ── Stress-to-colour mapping (Pastel Blue → Pastel Yellow) ────
 function stressToColor(demand: number): THREE.Color {
-  // 0 = deep blue, 1 = bright yellow
+  // 0 = pastel blue (#7FBEEB), 1 = pastel golden yellow (#F5D166)
   const d = clamp(demand, 0, 1);
-  const r = d * 0.945 + (1 - d) * 0.306;
-  const g = d * 0.788 + (1 - d) * 0.663;
-  const b = (1 - d) * 0.875 + d * 0.298;
+  const r = (1 - d) * 0.498 + d * 0.961;
+  const g = (1 - d) * 0.745 + d * 0.820;
+  const b = (1 - d) * 0.922 + d * 0.400;
   return new THREE.Color(r, g, b);
 }
 
 // ── Hexagonal prism geometry ──────────────────────────────────
 function createHexPrismGeometry(circumRadius: number, height: number, wallThickness: number): THREE.BufferGeometry {
-  // We create a hollow hex prism as an ExtrudeGeometry with a hexagonal shape minus inner void
   const outerR = circumRadius;
   const innerR = Math.max(circumRadius - wallThickness, circumRadius * 0.1);
 
@@ -62,7 +60,7 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
 }
 
 export function HoneycombModel() {
-  const { state, output } = useSimulation();
+  const { state } = useSimulation();
   const {
     loadN,
     cellSizeMm,
@@ -71,7 +69,6 @@ export function HoneycombModel() {
     showStress,
     showDeformation,
     deformationScale,
-    relativeDensity,
   } = state;
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -83,12 +80,12 @@ export function HoneycombModel() {
   );
 
   // ── Geometry (shared, reused for instancing) ───────────────
-  const { geometry, circumRadius } = useMemo(() => {
-    const circumRadius = clamp(cellSizeMm, 5, 50) / 10 * 0.48;
+  const { geometry } = useMemo(() => {
+    const circumRadius = (clamp(cellSizeMm, 5, 50) / 10) * 0.48;
     const wt = clamp(wallThicknessMm, 0.5, 8) / 10;
-    const height = 2.0; // fixed prism height in scene units
+    const height = 2.0;
     const geo = createHexPrismGeometry(circumRadius, height, wt);
-    return { geometry: geo, circumRadius };
+    return { geometry: geo };
   }, [cellSizeMm, wallThicknessMm]);
 
   // ── Global deformation for animation ──────────────────────
@@ -100,7 +97,6 @@ export function HoneycombModel() {
     const matrices: THREE.Matrix4[] = [];
     const colors: THREE.Color[] = [];
     const dummy = new THREE.Object3D();
-    const HEIGHT = 2.0;
 
     for (const cell of cells) {
       const deformY = showDeformation
@@ -115,7 +111,7 @@ export function HoneycombModel() {
 
       const color = showStress
         ? stressToColor(cell.demand)
-        : new THREE.Color("#4EA9E0");
+        : new THREE.Color("#7FBEEB");
       colors.push(color);
     }
     return { matrices, colors };
@@ -145,9 +141,8 @@ export function HoneycombModel() {
       >
         <meshStandardMaterial
           vertexColors
-          roughness={0.35}
-          metalness={0.15}
-          envMapIntensity={0.6}
+          roughness={0.4}
+          metalness={0.08}
           side={THREE.DoubleSide}
         />
       </instancedMesh>

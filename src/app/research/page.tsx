@@ -16,8 +16,29 @@ export default function ResearchPage() {
         </p>
       </div>
 
+      {/* ── Visual Flow: From Bone to Engineering ───────── */}
+      <div className={`card ${styles.flowCard}`}>
+        <h3 className={styles.flowTitle}>From Biological Remodelling to Engineering Lattice</h3>
+        <div className={styles.bioFlow}>
+          {[
+            { step: "BONE", desc: "Hierarchical living porous organ", color: "#A9D8F5" },
+            { step: "TRABECULAR ARCHITECTURE", desc: "Open-cell irregular cancellous network", color: "#DCEFFA" },
+            { step: "LOAD-RESPONSIVE ORGANIZATION", desc: "Wolff's Law: alignment along principal stresses", color: "#F8E7A6" },
+            { step: "ENGINEERED LATTICE", desc: "Density-graded additive manufactured component", color: "#BFE3D0" },
+          ].map((item, idx, arr) => (
+            <React.Fragment key={item.step}>
+              <div className={styles.bioNode} style={{ borderTop: `4px solid ${item.color}` }}>
+                <div className={styles.bioNodeTitle}>{item.step}</div>
+                <div className={styles.bioNodeDesc}>{item.desc}</div>
+              </div>
+              {idx < arr.length - 1 && <div className={styles.bioArrow}>→</div>}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
       {/* ── Research Paper Reference ─────────────────────── */}
-      <div className={`card ${styles.paperCard}`}>
+      <div className={`card ${styles.paperCard}`} style={{ marginTop: "2rem" }}>
         <div className={styles.badgeRow}>
           <span className="badge badge-yellow">Primary Literature Source</span>
           <span className="badge badge-blue">Additive Manufacturing &amp; Biomimicry</span>
@@ -70,7 +91,7 @@ export default function ResearchPage() {
       </div>
 
       <div className="grid-2">
-        <div className="card">
+        <div className="card" style={{ borderTop: "4px solid #A9D8F5" }}>
           <div className={styles.cardHeader}>
             <span className={styles.cardIcon}>🦴</span>
             <h3>Trabecular Bone Architecture</h3>
@@ -86,7 +107,7 @@ export default function ResearchPage() {
           </ul>
         </div>
 
-        <div className="card">
+        <div className="card" style={{ borderTop: "4px solid #F8E7A6" }}>
           <div className={styles.cardHeader}>
             <span className={styles.cardIcon}>⬡</span>
             <h3>Honeycomb Hexagonal Geometry</h3>
@@ -104,13 +125,15 @@ export default function ResearchPage() {
       </div>
 
       {/* ── Remodelling Analogy Table ──────────────────────── */}
-      <div className={`card ${styles.analogyCard}`} style={{ marginTop: "1.5rem" }}>
-        <h3 style={{ marginBottom: "1rem", color: "#F2C94C" }}>
+      <div className={`card ${styles.analogyCard}`} style={{ marginTop: "1.75rem" }}>
+        <h3 style={{ marginBottom: "1.25rem", color: "#1C4C74" }}>
           Biological Remodelling vs Computational Optimization
         </h3>
         <div className={styles.analogyGrid}>
           <div className={styles.analogyCol}>
-            <div className={styles.analogyHead}>Biological Process</div>
+            <div className={styles.analogyHead} style={{ color: "#1C4C74", borderBottomColor: "#A9D8F5" }}>
+              Biological Process
+            </div>
             <div className={styles.analogyItem}>
               <strong>Mechanosensation:</strong> Osteocytes detect local interstitial fluid flow &amp; strain energy.
             </div>
@@ -123,7 +146,9 @@ export default function ResearchPage() {
           </div>
 
           <div className={styles.analogyCol}>
-            <div className={styles.analogyHead}>Engineered Simulation Analogy</div>
+            <div className={styles.analogyHead} style={{ color: "#634B00", borderBottomColor: "#F8E7A6" }}>
+              Engineered Simulation Analogy
+            </div>
             <div className={styles.analogyItem}>
               <strong>Local Demand Proxy:</strong> Computed from load-path factor, vertical position, and orientation alignment.
             </div>
@@ -144,7 +169,7 @@ export default function ResearchPage() {
 
       <div className="grid-3">
         <div className="card">
-          <h4 style={{ color: "#86CFF5", marginBottom: "0.5rem" }}>1. Orientation Factor</h4>
+          <h4 style={{ color: "#1C4C74", marginBottom: "0.5rem" }}>1. Orientation Factor</h4>
           <p className={styles.formulaDesc}>
             Measures strut axis alignment with the primary downward force vector:
           </p>
@@ -157,7 +182,7 @@ export default function ResearchPage() {
         </div>
 
         <div className="card">
-          <h4 style={{ color: "#86CFF5", marginBottom: "0.5rem" }}>2. Local Demand &amp; Density</h4>
+          <h4 style={{ color: "#1C4C74", marginBottom: "0.5rem" }}>2. Local Demand &amp; Density</h4>
           <p className={styles.formulaDesc}>
             Spatial demand distribution based on load position, load-path, and orientation:
           </p>
@@ -170,7 +195,7 @@ export default function ResearchPage() {
         </div>
 
         <div className="card">
-          <h4 style={{ color: "#86CFF5", marginBottom: "0.5rem" }}>3. Effective Stiffness &amp; Compliance</h4>
+          <h4 style={{ color: "#1C4C74", marginBottom: "0.5rem" }}>3. Effective Stiffness &amp; Compliance</h4>
           <p className={styles.formulaDesc}>
             Non-linear Gibson-Ashby power-law bending-dominated stiffness scaling:
           </p>
@@ -188,7 +213,7 @@ export default function ResearchPage() {
         <strong>Scientific &amp; Educational Disclaimer:</strong> This application is an educational conceptual simulator designed to demonstrate qualitative biomimetic design principles, material efficiency, and geometric load-responsiveness. The numerical values, stress proxies, and visual deformation outputs are mathematical proxies for pedagogical visualization and are not certified finite-element analysis (FEA) or laboratory-validated engineering specifications. Experimental benchmark figures are cited directly from Naboni &amp; Kunic (2019).
       </div>
 
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+      <div style={{ textAlign: "center", marginTop: "2.25rem" }}>
         <Link href="/simulator" className="btn btn-yellow" style={{ marginRight: "1rem" }}>
           ▶ Interactive 3D Simulator
         </Link>

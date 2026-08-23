@@ -6,31 +6,34 @@ const FEATURES = [
   {
     icon: "⬡",
     title: "Honeycomb Structure",
-    desc: "Regular hexagonal cellular geometry inspired by bee honeycombs. Optimal wall thickness and cell size distribute loads efficiently with minimal material.",
+    desc: "Regular hexagonal cellular geometry inspired by bee honeycombs. Optimal wall thickness and cell size distribute compressive loads efficiently with minimum material perimeter.",
     href: "/simulator",
-    color: "#4EA9E0",
+    accentColor: "#F8E7A6",
+    badge: "Periodic Regular",
   },
   {
     icon: "⁜",
     title: "Bone-Inspired Lattice",
-    desc: "Irregular trabecular network mimicking cancellous bone. Material distribution adapts to local structural demand through a conceptual optimization analogy.",
+    desc: "Irregular trabecular network mimicking cancellous bone. Material distribution dynamically adapts to local structural demand through a biological remodelling optimization analogy.",
     href: "/simulator",
-    color: "#F2C94C",
+    accentColor: "#A9D8F5",
+    badge: "Anisotropic Adaptive",
   },
   {
     icon: "▪",
     title: "Solid Baseline",
-    desc: "Dense monolithic structure as the reference case. Compare performance metrics against cellular alternatives for the same applied load.",
+    desc: "Dense continuous structural block as reference standard. Demonstrates the material efficiency and mass reduction achieved by introducing intentional porous architectures.",
     href: "/comparison",
-    color: "#86CFF5",
+    accentColor: "#BFE3D0",
+    badge: "Dense Monolithic",
   },
 ];
 
 const PRINCIPLES = [
-  { icon: "⚖", title: "Structural Efficiency", desc: "Achieve more load-bearing capacity per unit of material mass." },
-  { icon: "◎", title: "Material Distribution", desc: "Place material only where structural demand is highest." },
-  { icon: "⟳", title: "Adaptive Remodelling", desc: "Biologically-inspired redistribution: deposit where stressed, resorb where idle." },
-  { icon: "◈", title: "Cellular Geometry", desc: "Cellular topology provides multiple load paths and graceful failure modes." },
+  { icon: "⚖", title: "Structural Efficiency", desc: "Maximize compressive load capacity per unit of component mass." },
+  { icon: "◎", title: "Material Distribution", desc: "Place material exclusively along principal structural stress paths." },
+  { icon: "⟳", title: "Adaptive Remodelling", desc: "Biological inspiration: deposit where stressed, resorb where unloaded." },
+  { icon: "◈", title: "Cellular Geometry", desc: "Cellular networks prevent crack propagation and catastrophic buckling." },
 ];
 
 export default function HomePage() {
@@ -41,7 +44,7 @@ export default function HomePage() {
         <div className="container">
           <div className={styles.heroContent}>
             <div className={styles.heroBadge}>
-              <span className="badge badge-blue">University Biomimicry Project</span>
+              <span className="badge badge-blue">University Biomimicry Engineering</span>
               <span className="badge badge-yellow">Conceptual Simulation</span>
             </div>
             <h1 className={styles.heroTitle}>
@@ -50,9 +53,9 @@ export default function HomePage() {
               Structures
             </h1>
             <p className={styles.heroDesc}>
-              Explore how nature&apos;s engineering principles — from honeybee geometry to
-              trabecular bone architecture — produce extraordinary structural efficiency
-              from minimal material.
+              Explore how biological cellular architectures — from bee honeycombs to
+              trabecular bone — achieve high strength-to-weight performance through geometry,
+              porosity, and adaptive material organization.
             </p>
             <div className={styles.heroCtas}>
               <Link href="/simulator" className="btn btn-yellow">
@@ -62,7 +65,7 @@ export default function HomePage() {
                 ◈ View Comparison
               </Link>
               <Link href="/research" className="btn btn-ghost">
-                📄 Research
+                📄 Research Literature
               </Link>
             </div>
 
@@ -70,17 +73,17 @@ export default function HomePage() {
             <div className={styles.heroStats}>
               <div className={styles.stat}>
                 <span className={styles.statValue}>3000 N</span>
-                <span className={styles.statLabel}>Compression resistance<br/>(Naboni & Kunic, 2019)</span>
+                <span className={styles.statLabel}>Peak Load Capacity<br/>(Naboni &amp; Kunic 2019)</span>
               </div>
               <div className={styles.statDivider} />
               <div className={styles.stat}>
                 <span className={styles.statValue}>185 g</span>
-                <span className={styles.statLabel}>Lattice brick mass<br/>(experimental reference)</span>
+                <span className={styles.statLabel}>Lattice Brick Mass<br/>(Lab Benchmark)</span>
               </div>
               <div className={styles.statDivider} />
               <div className={styles.stat}>
                 <span className={styles.statValue}>~1600×</span>
-                <span className={styles.statLabel}>Load-to-weight ratio<br/>(paper reported)</span>
+                <span className={styles.statLabel}>Load-to-Weight Ratio<br/>(Reported)</span>
               </div>
             </div>
           </div>
@@ -93,14 +96,9 @@ export default function HomePage() {
                   key={i}
                   className={styles.hexCell}
                   style={{
-                    opacity: 0.3 + (i % 7) * 0.1,
-                    background: i % 3 === 0
-                      ? "rgba(242,201,76,0.15)"
-                      : "rgba(78,169,224,0.1)",
-                    borderColor: i % 3 === 0
-                      ? "rgba(242,201,76,0.3)"
-                      : "rgba(78,169,224,0.25)",
-                    animationDelay: `${i * 0.15}s`,
+                    background: i % 3 === 0 ? "rgba(248, 231, 166, 0.45)" : "rgba(169, 216, 245, 0.45)",
+                    borderColor: i % 3 === 0 ? "#E8D58C" : "#A9D8F5",
+                    animationDelay: `${i * 0.1}s`,
                   }}
                 />
               ))}
@@ -110,21 +108,30 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ───────────────────────────────────────── */}
-      <section className="section" style={{ background: "#0D2447" }}>
+      <section className="section" style={{ background: "#EEF4F8" }}>
         <div className="container">
           <div className={`section-title ${styles.sectionTitle}`}>
             <h2>Structural Strategies</h2>
           </div>
           <div className="grid-3">
             {FEATURES.map((f) => (
-              <Link href={f.href} key={f.title} className="card card-hover" style={{ textDecoration: "none" }}>
-                <div style={{ fontSize: "2.2rem", color: f.color, marginBottom: "0.75rem" }}>
-                  {f.icon}
+              <Link
+                href={f.href}
+                key={f.title}
+                className="card card-hover"
+                style={{
+                  textDecoration: "none",
+                  borderTop: `4px solid ${f.accentColor}`,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <span style={{ fontSize: "2rem", color: "#243447" }}>{f.icon}</span>
+                  <span className="badge badge-blue" style={{ fontSize: "0.7rem" }}>{f.badge}</span>
                 </div>
-                <h3 style={{ color: "#F4F8FC", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                <h3 style={{ color: "#243447", marginBottom: "0.5rem", fontSize: "1.15rem" }}>
                   {f.title}
                 </h3>
-                <p style={{ fontSize: "0.85rem", lineHeight: 1.6 }}>{f.desc}</p>
+                <p style={{ fontSize: "0.88rem", lineHeight: 1.6, color: "#62748A" }}>{f.desc}</p>
               </Link>
             ))}
           </div>
@@ -141,18 +148,18 @@ export default function HomePage() {
             {PRINCIPLES.map((p) => (
               <div key={p.title} className="card" style={{ textAlign: "center" }}>
                 <div style={{ fontSize: "1.8rem", marginBottom: "0.6rem" }}>{p.icon}</div>
-                <h4 style={{ color: "#86CFF5", marginBottom: "0.4rem", fontSize: "0.95rem" }}>
+                <h4 style={{ color: "#1C4C74", marginBottom: "0.4rem", fontSize: "0.95rem" }}>
                   {p.title}
                 </h4>
-                <p style={{ fontSize: "0.8rem", lineHeight: 1.55 }}>{p.desc}</p>
+                <p style={{ fontSize: "0.82rem", lineHeight: 1.55, color: "#62748A" }}>{p.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Data flow diagram ──────────────────────────────── */}
-      <section className="section" style={{ background: "#0D2447" }}>
+      {/* ── Data Flow Diagram ──────────────────────────────── */}
+      <section className="section" style={{ background: "#EEF4F8" }}>
         <div className="container">
           <div className={`section-title ${styles.sectionTitle}`}>
             <h2>Simulation Data Flow</h2>
@@ -176,9 +183,9 @@ export default function HomePage() {
               </React.Fragment>
             ))}
           </div>
-          <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <div style={{ textAlign: "center", marginTop: "2.25rem" }}>
             <Link href="/simulator" className="btn btn-yellow">
-              ▶ Experience the Simulation
+              ▶ Experience the 3D Simulation
             </Link>
           </div>
         </div>
@@ -191,7 +198,7 @@ export default function HomePage() {
             <strong>⚠ Scientific Disclaimer:</strong> Conceptual browser simulation.
             Stress and deformation outputs are relative visual/engineering proxies and are not
             validated FEM results. Experimental data shown separately from simulation output.
-            Based on: Naboni R. & Kunic A. (2019), <em>Bone-Inspired 3D Printed Structures for
+            Based on: Naboni R. &amp; Kunic A. (2019), <em>Bone-Inspired 3D Printed Structures for
             Construction Applications.</em>
           </div>
         </div>

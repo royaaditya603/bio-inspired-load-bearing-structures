@@ -16,9 +16,9 @@
 }
 
 .label {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  color: #A9BCD2;
+  color: #62748A;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -26,24 +26,24 @@
 .value {
   font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
-.valueBlue { color: #86CFF5; }
-.valueYellow { color: #F2C94C; }
+.valueBlue { color: #1C4C74; }
+.valueYellow { color: #634B00; }
 
 .unit {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  margin-left: 1px;
-  opacity: 0.7;
+  margin-left: 2px;
+  color: #62748A;
 }
 
 .track {
   position: relative;
-  height: 4px;
-  background: #294B6E;
-  border-radius: 2px;
+  height: 6px;
+  background: #E6EEF4;
+  border-radius: 3px;
   margin: 4px 0 2px;
 }
 
@@ -52,13 +52,13 @@
   left: 0;
   top: 0;
   height: 100%;
-  border-radius: 2px;
+  border-radius: 3px;
   pointer-events: none;
-  transition: width 0.1s;
+  transition: width 0.1s ease;
 }
 
-.fillBlue { background: linear-gradient(90deg, #2A6EA6, #4EA9E0); }
-.fillYellow { background: linear-gradient(90deg, #C9971E, #F2C94C); }
+.fillBlue { background: #A9D8F5; }
+.fillYellow { background: #F8E7A6; }
 
 .input {
   position: absolute;
@@ -66,30 +66,16 @@
   top: 50%;
   transform: translateY(-50%);
   width: 100%;
-  height: 18px;
+  height: 20px;
   margin: 0;
   opacity: 0;
   cursor: pointer;
   z-index: 2;
 }
 
-/* visible thumb via overlay approach */
-.track::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #4EA9E0;
-  border: 2px solid #071A36;
-  pointer-events: none;
-}
-
 .minmax {
   display: flex;
   justify-content: space-between;
   font-size: 0.68rem;
-  color: #6A8BA8;
+  color: #8C9BAE;
 }

@@ -173,7 +173,7 @@ const SLIDES: Slide[] = [
     callout: "Explore the live simulation in the Simulator tab to interactively test all structural models.",
     stats: [
       { label: "Renderer", value: "WebGL / Three.js" },
-      { label: "UI Theme", value: "Blue + Yellow" },
+      { label: "UI Theme", value: "Pastel Scientific" },
     ],
   },
   {
@@ -264,7 +264,7 @@ export default function PresentationPage() {
           >
             ☰ Slide Index ({currentSlideIndex + 1}/{totalSlides})
           </button>
-          <button className="btn btn-primary btn-sm" onClick={toggleFullscreen}>
+          <button className="btn btn-ghost btn-sm" onClick={toggleFullscreen}>
             {isFullscreen ? "Exit Fullscreen" : "⛶ Fullscreen (F)"}
           </button>
           <Link href="/simulator" className="btn btn-yellow btn-sm">
@@ -361,7 +361,7 @@ export default function PresentationPage() {
               ◀ Previous
             </button>
             <button
-              className="btn btn-yellow"
+              className="btn btn-primary"
               onClick={nextSlide}
               disabled={currentSlideIndex === totalSlides - 1}
             >

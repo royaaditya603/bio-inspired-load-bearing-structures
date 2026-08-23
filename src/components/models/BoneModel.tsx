@@ -13,13 +13,13 @@ import { useSimulation } from "@/components/simulation/SimulationContext";
 import { clamp } from "@/lib/simulation/normalize";
 import type { StrutElement } from "@/lib/simulation/types";
 
-// ── Stress-to-colour mapping (blue → yellow) ──────────────────
+// ── Stress-to-colour mapping (Pastel Blue → Pastel Yellow) ────
 function demandToColor(demand: number): THREE.Color {
   const d = clamp(demand, 0, 1);
-  // Low demand = blue (#4EA9E0), high demand = yellow (#F2C94C)
-  const r = (1 - d) * 0.306 + d * 0.949;
-  const g = (1 - d) * 0.663 + d * 0.788;
-  const b = (1 - d) * 0.875 + d * 0.298;
+  // Low demand = pastel blue (#7FBEEB), high demand = pastel golden yellow (#F5D166)
+  const r = (1 - d) * 0.498 + d * 0.961;
+  const g = (1 - d) * 0.745 + d * 0.820;
+  const b = (1 - d) * 0.922 + d * 0.400;
   return new THREE.Color(r, g, b);
 }
 
@@ -61,8 +61,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
 
   // Shared cylinder geometry (reused for all struts)
   const geometry = useMemo(() => {
-    const geo = new THREE.CylinderGeometry(1, 1, 2, 8, 1);
-    return geo;
+    return new THREE.CylinderGeometry(1, 1, 2, 10, 1);
   }, []);
 
   const { matrices, colors } = useMemo(() => {
@@ -73,7 +72,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
       const deformY = showDeformation ? -s.demand * globalDeform * 0.15 : 0;
       matrices.push(strutMatrix(s, deformY));
       colors.push(
-        showStress ? demandToColor(s.demand) : new THREE.Color("#4EA9E0")
+        showStress ? demandToColor(s.demand) : new THREE.Color("#7FBEEB")
       );
     }
     return { matrices, colors };
@@ -102,8 +101,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
       <meshStandardMaterial
         vertexColors
         roughness={0.4}
-        metalness={0.1}
-        envMapIntensity={0.5}
+        metalness={0.08}
       />
     </instancedMesh>
   );
@@ -114,15 +112,13 @@ export function BoneModel() {
   const { showStress, showDeformation, deformationScale } = state;
 
   const struts = output.struts ?? [];
-
-  // Global deformation proxy from output
   const globalDeform = output.deformation * deformationScale;
 
   if (struts.length === 0) {
     return (
       <mesh>
         <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color="#4EA9E0" />
+        <meshStandardMaterial color="#A9D8F5" />
       </mesh>
     );
   }

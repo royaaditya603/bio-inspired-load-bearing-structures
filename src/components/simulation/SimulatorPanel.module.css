@@ -1,19 +1,20 @@
 .panel {
-  width: 320px;
-  min-width: 280px;
+  width: 330px;
+  min-width: 290px;
   height: 100%;
   overflow-y: auto;
-  background: #0D2447;
-  border-left: 1px solid #294B6E;
+  background: #FFFFFF;
+  border-left: 1px solid #D7E2EA;
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding-bottom: 1rem;
+  padding-bottom: 1.5rem;
+  box-shadow: -2px 0 10px rgba(36, 52, 71, 0.03);
 }
 
 .section {
-  padding: 1rem 1.1rem 0.9rem;
-  border-bottom: 1px solid rgba(41, 75, 110, 0.5);
+  padding: 1.1rem 1.25rem 1rem;
+  border-bottom: 1px solid #E6EEF4;
 }
 
 .sectionTitle {
@@ -23,21 +24,25 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #A9BCD2;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.08em;
+  color: #62748A;
+  margin-bottom: 0.85rem;
 }
 
 .sectionIcon {
-  color: #4EA9E0;
-  font-size: 0.9rem;
+  color: #3A88C8;
+  font-size: 0.95rem;
 }
 
 /* Model type tabs */
 .modelTabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.35rem;
+  gap: 0.4rem;
+  background: #EEF4F8;
+  padding: 0.3rem;
+  border-radius: 10px;
+  border: 1px solid #D7E2EA;
 }
 
 .modelTab {
@@ -45,27 +50,28 @@
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  padding: 0.5rem 0.3rem;
-  border-radius: 8px;
-  border: 1.5px solid #294B6E;
+  padding: 0.5rem 0.25rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
   background: transparent;
-  color: #A9BCD2;
+  color: #62748A;
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .modelTab:hover {
-  border-color: #4EA9E0;
-  color: #F4F8FC;
-  background: rgba(78, 169, 224, 0.08);
+  color: #243447;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(36, 52, 71, 0.06);
 }
 
 .modelTabActive {
-  border-color: #4EA9E0;
-  background: rgba(78, 169, 224, 0.15);
-  color: #86CFF5;
+  background: #FFFFFF !important;
+  color: #1C4C74 !important;
+  border-color: #D7E2EA !important;
+  box-shadow: 0 2px 6px rgba(36, 52, 71, 0.08) !important;
 }
 
 .modelIcon {
@@ -76,14 +82,23 @@
 .presetRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .presetBtn {
-  font-size: 0.68rem !important;
-  padding: 0.35rem 0.4rem !important;
+  font-size: 0.72rem !important;
+  padding: 0.4rem 0.4rem !important;
   text-align: center;
   justify-content: center;
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
+  color: #243447;
+}
+
+.presetBtn:hover {
+  background: #DCEFFA;
+  border-color: #A9D8F5;
+  color: #1C4C74;
 }
 
 /* Slider stack */
@@ -97,25 +112,25 @@
 .toggleStack {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
 }
 
 /* Optimization */
 .optDesc {
   font-size: 0.75rem;
-  color: #6A8BA8;
+  color: #62748A;
   margin-bottom: 0.75rem;
   line-height: 1.5;
 }
 
 .optProgress {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .optLabel {
   font-size: 0.72rem;
-  color: #A9BCD2;
+  color: #62748A;
   margin-bottom: 0.35rem;
   font-weight: 600;
 }
@@ -126,7 +141,7 @@
 }
 
 .optBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -134,15 +149,16 @@
 .legendBar {
   height: 10px;
   border-radius: 5px;
-  background: linear-gradient(90deg, #4EA9E0, #7FC8A9, #F2C94C);
-  margin-bottom: 0.3rem;
+  background: linear-gradient(90deg, #A9D8F5, #BFE3D0, #F8E7A6);
+  margin-bottom: 0.35rem;
+  border: 1px solid #D7E2EA;
 }
 
 .legendLabels {
   display: flex;
   justify-content: space-between;
   font-size: 0.68rem;
-  color: #6A8BA8;
+  color: #62748A;
   align-items: center;
 }
 
@@ -150,8 +166,9 @@
 .actions {
   display: flex;
   gap: 0.5rem;
-  padding: 0.75rem 1.1rem;
-  border-top: 1px solid #294B6E;
-  border-bottom: 1px solid #294B6E;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid #E6EEF4;
+  border-bottom: 1px solid #E6EEF4;
   margin-bottom: 0.75rem;
+  background: #F7F9FC;
 }
