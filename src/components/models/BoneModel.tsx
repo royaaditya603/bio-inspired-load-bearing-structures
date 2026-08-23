@@ -2,9 +2,7 @@
 
 // ============================================================
 // BoneModel.tsx — Irregular trabecular-inspired strut lattice
-// ============================================================
-// NOT a literal anatomical bone. An engineered lattice whose
-// topology and material distribution are INSPIRED BY trabecular bone.
+// High-visibility, crisp variable-density lattice struts
 // ============================================================
 
 import React, { useMemo, useRef, useEffect } from "react";
@@ -13,13 +11,13 @@ import { useSimulation } from "@/components/simulation/SimulationContext";
 import { clamp } from "@/lib/simulation/normalize";
 import type { StrutElement } from "@/lib/simulation/types";
 
-// ── Stress-to-colour mapping (Pastel Blue → Pastel Yellow) ────
+// ── Stress-to-colour mapping (Pastel Blue → Vibrant Yellow-Gold) ──
 function demandToColor(demand: number): THREE.Color {
   const d = clamp(demand, 0, 1);
-  // Low demand = pastel blue (#7FBEEB), high demand = pastel golden yellow (#F5D166)
-  const r = (1 - d) * 0.498 + d * 0.961;
-  const g = (1 - d) * 0.745 + d * 0.820;
-  const b = (1 - d) * 0.922 + d * 0.400;
+  // 0 = vibrant pastel blue (#4FA8E0), 1 = rich pastel yellow-gold (#F0C438)
+  const r = (1 - d) * 0.31 + d * 0.94;
+  const g = (1 - d) * 0.66 + d * 0.77;
+  const b = (1 - d) * 0.88 + d * 0.22;
   return new THREE.Color(r, g, b);
 }
 
@@ -61,7 +59,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
 
   // Shared cylinder geometry (reused for all struts)
   const geometry = useMemo(() => {
-    return new THREE.CylinderGeometry(1, 1, 2, 10, 1);
+    return new THREE.CylinderGeometry(1, 1, 2, 12, 1);
   }, []);
 
   const { matrices, colors } = useMemo(() => {
@@ -72,7 +70,7 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
       const deformY = showDeformation ? -s.demand * globalDeform * 0.15 : 0;
       matrices.push(strutMatrix(s, deformY));
       colors.push(
-        showStress ? demandToColor(s.demand) : new THREE.Color("#7FBEEB")
+        showStress ? demandToColor(s.demand) : new THREE.Color("#4FA8E0")
       );
     }
     return { matrices, colors };
@@ -100,8 +98,8 @@ function BoneInstanced({ struts, showStress, showDeformation, globalDeform }: Bo
     >
       <meshStandardMaterial
         vertexColors
-        roughness={0.4}
-        metalness={0.08}
+        roughness={0.35}
+        metalness={0.05}
       />
     </instancedMesh>
   );
@@ -118,7 +116,7 @@ export function BoneModel() {
     return (
       <mesh>
         <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color="#A9D8F5" />
+        <meshStandardMaterial color="#4FA8E0" />
       </mesh>
     );
   }

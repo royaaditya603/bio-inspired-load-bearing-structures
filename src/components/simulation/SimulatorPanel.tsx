@@ -19,7 +19,7 @@ const MODEL_OPTIONS: { value: ModelType; label: string; icon: string }[] = [
 ];
 
 export function SimulatorPanel() {
-  const { state, output, setParam, reset, applyPreset, runOptimization } =
+  const { state, setParam, reset, applyPreset, runOptimization } =
     useSimulation();
 
   const isBone = state.modelType === "bone";
@@ -214,7 +214,7 @@ export function SimulatorPanel() {
         <section className={styles.section}>
           <div className={styles.sectionTitle}>
             <span className={styles.sectionIcon}>⟳</span>
-            <span>Optimization</span>
+            <span>Remodelling Optimization</span>
           </div>
           <p className={styles.optDesc}>
             Iteratively redistributes material: high-demand struts thicken,
@@ -250,13 +250,19 @@ export function SimulatorPanel() {
             <span className={styles.sectionIcon}>◐</span>
             <span>Stress Scale</span>
           </div>
+          <div className={styles.legendHeader}>
+            <span className={styles.legendTitle}>CONCEPTUAL / RELATIVE STRESS INDEX</span>
+          </div>
           <div className={styles.legendBar} />
           <div className={styles.legendLabels}>
-            <span>Low</span>
-            <span style={{ color: "#A9BCD2", fontSize: "0.68rem" }}>
-              RELATIVE / CONCEPTUAL STRESS INDEX
-            </span>
-            <span>High</span>
+            <span style={{ color: "#1C4C74", fontWeight: 700 }}>LOW</span>
+            <span style={{ color: "#62748A", fontWeight: 600 }}>MODERATE</span>
+            <span style={{ color: "#634B00", fontWeight: 700 }}>HIGH</span>
+          </div>
+          <div className={styles.legendColorLabels}>
+            <span>Pastel Blue</span>
+            <span>Blue-Yellow</span>
+            <span>Pastel Yellow</span>
           </div>
         </section>
       )}
@@ -272,7 +278,7 @@ export function SimulatorPanel() {
       </section>
 
       {/* ── Disclaimer ────────────────────────────────────── */}
-      <div className="disclaimer" style={{ margin: "0 0 0.5rem" }}>
+      <div className="disclaimer" style={{ margin: "0 1rem 0.5rem" }}>
         <strong>⚠ Conceptual simulation.</strong> Stress and deformation outputs
         are relative visual/engineering proxies — not validated FEM results.
       </div>

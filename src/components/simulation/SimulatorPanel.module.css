@@ -146,20 +146,39 @@
 }
 
 /* Stress legend */
+.legendHeader {
+  margin-bottom: 0.45rem;
+  text-align: center;
+}
+
+.legendTitle {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #62748A;
+}
+
 .legendBar {
   height: 10px;
   border-radius: 5px;
-  background: linear-gradient(90deg, #A9D8F5, #BFE3D0, #F8E7A6);
-  margin-bottom: 0.35rem;
+  background: linear-gradient(90deg, #4FA8E0, #84CCA6, #F0C438);
+  margin-bottom: 0.4rem;
   border: 1px solid #D7E2EA;
 }
 
 .legendLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.68rem;
-  color: #62748A;
+  font-size: 0.7rem;
   align-items: center;
+}
+
+.legendColorLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.64rem;
+  color: #8C9BAE;
+  margin-top: 0.15rem;
 }
 
 /* Actions */

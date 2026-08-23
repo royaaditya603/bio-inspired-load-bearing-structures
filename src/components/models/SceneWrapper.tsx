@@ -2,6 +2,7 @@
 
 // ============================================================
 // SceneWrapper.tsx — React Three Fiber Canvas wrapper
+// High-visibility, bright pastel scientific engineering viewport
 // ============================================================
 
 import React, { Suspense } from "react";
@@ -16,16 +17,27 @@ import { LoadArrow } from "./LoadArrow";
 function SceneLighting() {
   return (
     <>
-      <ambientLight intensity={0.8} color="#FFFFFF" />
+      {/* High ambient illumination ensures all faces are bright & clear */}
+      <ambientLight intensity={1.1} color="#FFFFFF" />
+      
+      {/* Primary key light from top-right-front */}
       <directionalLight
-        position={[6, 12, 6]}
-        intensity={1.2}
+        position={[8, 14, 8]}
+        intensity={1.3}
         color="#FFFFFF"
         castShadow
         shadow-mapSize={[1024, 1024]}
+        shadow-bias={-0.0001}
       />
-      <directionalLight position={[-6, 6, -6]} intensity={0.5} color="#DCEFFA" />
-      <directionalLight position={[0, -6, 0]} intensity={0.3} color="#FFF5CF" />
+      
+      {/* Fill light from opposite side to keep shadows soft & legible */}
+      <directionalLight position={[-8, 7, -8]} intensity={0.75} color="#E3F2FD" />
+      
+      {/* Soft top-down light */}
+      <directionalLight position={[0, 10, 0]} intensity={0.5} color="#FFFDE7" />
+      
+      {/* Subtle bottom bounce light for under-strut visibility */}
+      <directionalLight position={[0, -6, 0]} intensity={0.4} color="#E8F4F8" />
     </>
   );
 }
@@ -34,14 +46,14 @@ function SceneGrid() {
   return (
     <Grid
       position={[0, -3.5, 0]}
-      args={[20, 20]}
+      args={[24, 24]}
       cellSize={0.5}
-      cellThickness={0.5}
-      cellColor="#D7E2EA"
-      sectionSize={2}
-      sectionThickness={1}
-      sectionColor="#B8CBD8"
-      fadeDistance={20}
+      cellThickness={0.6}
+      cellColor="#D2E1EC"
+      sectionSize={2.5}
+      sectionThickness={1.2}
+      sectionColor="#ADC7DC"
+      fadeDistance={22}
       fadeStrength={1}
       infiniteGrid
     />
@@ -68,7 +80,7 @@ function SceneContent() {
       <OrbitControls
         makeDefault
         minDistance={3}
-        maxDistance={30}
+        maxDistance={28}
         dampingFactor={0.08}
         enableDamping
       />
@@ -97,15 +109,16 @@ export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
         borderRadius: 16,
         overflow: "hidden",
         border: "1px solid #D7E2EA",
+        boxShadow: "inset 0 0 30px rgba(169, 216, 245, 0.15)",
       }}
     >
       <Canvas
-        camera={{ position: [8, 6, 8], fov: 45, near: 0.1, far: 200 }}
+        camera={{ position: [8.5, 6.5, 8.5], fov: 42, near: 0.1, far: 200 }}
         shadows
         dpr={[1, 2]}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}
         style={{
-          background: "linear-gradient(180deg, #F7F9FC 0%, #EEF4F8 100%)",
+          background: "linear-gradient(180deg, #FBFDFF 0%, #EEF4F8 100%)",
         }}
       >
         <Suspense fallback={null}>

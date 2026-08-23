@@ -2,6 +2,7 @@
 
 // ============================================================
 // HoneycombModel.tsx — Regular hexagonal cellular 3D structure
+// High-visibility, crisp cellular walls on bright scientific background
 // ============================================================
 
 import React, { useMemo, useRef } from "react";
@@ -14,13 +15,13 @@ import {
 import { computeDeformation } from "@/lib/simulation/deformationModel";
 import { clamp } from "@/lib/simulation/normalize";
 
-// ── Stress-to-colour mapping (Pastel Blue → Pastel Yellow) ────
+// ── Stress-to-colour mapping (Pastel Blue → Vibrant Yellow-Gold) ──
 function stressToColor(demand: number): THREE.Color {
-  // 0 = pastel blue (#7FBEEB), 1 = pastel golden yellow (#F5D166)
+  // 0 = vibrant pastel blue (#4FA8E0), 1 = rich pastel yellow-gold (#F0C438)
   const d = clamp(demand, 0, 1);
-  const r = (1 - d) * 0.498 + d * 0.961;
-  const g = (1 - d) * 0.745 + d * 0.820;
-  const b = (1 - d) * 0.922 + d * 0.400;
+  const r = (1 - d) * 0.31 + d * 0.94;
+  const g = (1 - d) * 0.66 + d * 0.77;
+  const b = (1 - d) * 0.88 + d * 0.22;
   return new THREE.Color(r, g, b);
 }
 
@@ -53,7 +54,10 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
 
   const geo = new THREE.ExtrudeGeometry(shape, {
     depth: height,
-    bevelEnabled: false,
+    bevelEnabled: true,
+    bevelSegments: 1,
+    bevelSize: 0.02,
+    bevelThickness: 0.02,
   });
   geo.center();
   return geo;
@@ -111,7 +115,7 @@ export function HoneycombModel() {
 
       const color = showStress
         ? stressToColor(cell.demand)
-        : new THREE.Color("#7FBEEB");
+        : new THREE.Color("#4FA8E0");
       colors.push(color);
     }
     return { matrices, colors };
@@ -141,8 +145,8 @@ export function HoneycombModel() {
       >
         <meshStandardMaterial
           vertexColors
-          roughness={0.4}
-          metalness={0.08}
+          roughness={0.35}
+          metalness={0.05}
           side={THREE.DoubleSide}
         />
       </instancedMesh>
