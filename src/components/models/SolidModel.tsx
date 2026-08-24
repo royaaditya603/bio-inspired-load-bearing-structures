@@ -2,8 +2,8 @@
 
 // ============================================================
 // SolidModel.tsx — Staggered Brick Masonry Structure
-// Features localized deformation and an Easter Egg explosion
-// when applied load exceeds 2000 N near the centre!
+// Features omnidirectional deformation, Green->Yellow->Red stress colors,
+// and the Easter Egg explosion when load exceeds 2000 N near centre!
 // ============================================================
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
@@ -11,8 +11,13 @@ import { useFrame } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
-import { clamp, safeNumber } from "@/lib/simulation/normalize";
-import { computeLoadSpatialInfluence, computeNormalizedLoad } from "@/lib/simulation/loadModel";
+import { clamp } from "@/lib/simulation/normalize";
+import {
+  compute3DLoadSpatialInfluence,
+  computeNormalizedLoad,
+} from "@/lib/simulation/loadModel";
+import { computeOmnidirectionalDeformationVector } from "@/lib/simulation/deformationModel";
+import { demandToStressRGB } from "@/lib/simulation/stressModel";
 import { THRESHOLD_SOLID_N } from "@/lib/simulation/constants";
 
 interface BrickData {
@@ -115,7 +120,18 @@ function generateBricks(): BrickData[] {
 
 export function SolidModel() {
   const { state, output } = useSimulation();
-  const { loadN, loadPosX, loadPosZ, showDeformation, showStress, deformationScale } = state;
+  const {
+    loadN,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+    showDeformation,
+    showStress,
+    deformationScale,
+  } = state;
 
   const bricks = useMemo(() => generateBricks(), []);
   const brickGroupRef = useRef<THREE.Group>(null);
@@ -188,7 +204,7 @@ export function SolidModel() {
   });
 
   // Global deformation proxy
-  const F_norm = computeNormalizedLoad(loadN);
+  const globalDeform = output.deformation * deformationScale;
 
   return (
     <group>
@@ -197,28 +213,40 @@ export function SolidModel() {
         {bricks.map((b) => {
           const [bx, by, bz] = b.initialPos;
 
-          // Spatial localized deformation when not exploded
-          let deformY = 0;
+          // 3D Spatial localized deformation when not exploded
+          let [vx, vy, vz] = [0, 0, 0];
+          const spatialFactor = compute3DLoadSpatialInfluence(
+            bx,
+            by,
+            bz,
+            loadPosX,
+            loadPosY,
+            loadPosZ
+          );
+          const demand = clamp(spatialFactor * (loadN / THRESHOLD_SOLID_N), 0, 1);
+
           if (showDeformation && !isExploded) {
-            const spatialFactor = computeLoadSpatialInfluence(bx, bz, loadPosX, loadPosZ);
-            deformY = -spatialFactor * F_norm * 0.25 * deformationScale;
+            [vx, vy, vz] = computeOmnidirectionalDeformationVector(
+              globalDeform,
+              demand,
+              spatialFactor,
+              loadDirX,
+              loadDirY,
+              loadDirZ
+            );
           }
 
-          // Stress color mapped from demand/proximity
-          let brickColor = "#DCEFFA";
+          // Stress color: Green -> Yellow -> Red
+          let brickColor = "#A9D8F5";
           if (showStress) {
-            const spatialFactor = computeLoadSpatialInfluence(bx, bz, loadPosX, loadPosZ);
-            const demand = clamp(spatialFactor * (loadN / THRESHOLD_SOLID_N), 0, 1);
-            const r = (1 - demand) * 0.455 + demand * 0.976;
-            const g = (1 - demand) * 0.725 + demand * 0.792;
-            const bVal = (1 - demand) * 1.000 + demand * 0.141;
+            const [r, g, bVal] = demandToStressRGB(demand);
             brickColor = new THREE.Color(r, g, bVal).getStyle();
           }
 
           return (
             <mesh
               key={b.id}
-              position={[bx, by + deformY, bz]}
+              position={[bx + vx, by + vy, bz + vz]}
               castShadow
               receiveShadow
             >
@@ -238,7 +266,7 @@ export function SolidModel() {
         <mesh ref={burstRef} position={[loadPosX, 0.5, loadPosZ]}>
           <sphereGeometry args={[1.2, 24, 24]} />
           <meshBasicMaterial
-            color="#F9CA24"
+            color="#E05252"
             transparent
             opacity={0.7}
             wireframe
@@ -252,7 +280,7 @@ export function SolidModel() {
           <Text
             position={[0, 0, 0]}
             fontSize={0.34}
-            color="#D9534F"
+            color="#E05252"
             anchorX="center"
             anchorY="middle"
           >

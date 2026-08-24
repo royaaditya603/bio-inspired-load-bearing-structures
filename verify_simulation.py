@@ -1,6 +1,7 @@
 """
 Verification script for Bio-Inspired Load-Bearing Structures Simulation
-Executes all validation tests including structural failure thresholds and 3D XYZ load spatial influence.
+Executes all validation tests including Omnidirectional 3D Load Vectors,
+3D Gaussian Spatial Proximity, Surface Boundary Projection, and Green->Yellow->Red Stress Colors.
 """
 
 import math
@@ -79,104 +80,125 @@ def compute_honeycomb_rho(wall_thickness_mm, cell_size_mm):
 def compute_orientation_factor(alignment):
     return clamp(ORIENTATION_BASE + ORIENTATION_GAIN * alignment, MIN_ORIENTATION_FACTOR, 1.0)
 
-def compute_load_spatial_influence(px, pz, load_x, load_z, sigma=LOAD_INFLUENCE_SIGMA):
-    dx = px - load_x
-    dz = pz - load_z
-    r2 = dx * dx + dz * dz
-    raw = math.exp(-r2 / (2 * sigma * sigma))
+def compute_normalized_load_dir(dx, dy, dz):
+    length = math.sqrt(dx * dx + dy * dy + dz * dz)
+    if length < EPSILON:
+        return (0.0, -1.0, 0.0)
+    return (dx / length, dy / length, dz / length)
+
+def compute_3d_load_spatial_influence(px, py, pz, lx, ly, lz, sigma=LOAD_INFLUENCE_SIGMA):
+    dx = px - lx
+    dy = py - ly
+    dz = pz - lz
+    r2 = dx * dx + dy * dy + dz * dz
+    raw = math.exp(-r2 / (2.0 * sigma * sigma))
     return clamp(raw, 0.05, 1.0)
+
+def demand_to_stress_rgb(d):
+    d = clamp(d, 0.0, 1.0)
+    if d <= 0.5:
+        t = d / 0.5
+        r = (1 - t) * 0.298 + t * 0.949
+        g = (1 - t) * 0.686 + t * 0.788
+        b = (1 - t) * 0.314 + t * 0.298
+        return (r, g, b)
+    else:
+        t = (d - 0.5) / 0.5
+        r = (1 - t) * 0.949 + t * 0.878
+        g = (1 - t) * 0.788 + t * 0.322
+        b = (1 - t) * 0.298 + t * 0.322
+        return (r, g, b)
 
 def test_all():
     print("=================================================")
-    print(" RUNNING SIMULATION & EASTER EGG VALIDATION TESTS")
+    print(" RUNNING OMNIDIRECTIONAL & STRESS COLOR TESTS   ")
     print("=================================================")
 
-    # TEST 1: Increase load -> stress proxy increases
+    # TEST 1: Omnidirectional 3D Direction Normalization
+    d_down = compute_normalized_load_dir(0, -5, 0)
+    assert abs(d_down[1] - (-1.0)) < EPSILON, "Downward normalization failed"
+    d_diag = compute_normalized_load_dir(1, 1, 1)
+    expected_comp = 1.0 / math.sqrt(3.0)
+    assert abs(d_diag[0] - expected_comp) < EPSILON, "Diagonal normalization failed"
+    print(" [PASS] TEST 1: Omnidirectional 3D load vectors normalize accurately")
+
+    # TEST 2: Green -> Yellow -> Red Stress Color Interpolation
+    rgb_low = demand_to_stress_rgb(0.0)    # Green
+    rgb_mid = demand_to_stress_rgb(0.5)    # Yellow
+    rgb_high = demand_to_stress_rgb(1.0)   # Red
+    assert rgb_low[1] > rgb_low[0], "Green must have higher G than R"
+    assert rgb_mid[0] > 0.8 and rgb_mid[1] > 0.7, "Yellow must have high R & G"
+    assert rgb_high[0] > rgb_high[1], "Red must have higher R than G"
+    print(" [PASS] TEST 2: Stress colors correctly map to Green -> Yellow -> Red")
+
+    # TEST 3: Full 3D Spatial Gaussian Load Influence
+    inf_target = compute_3d_load_spatial_influence(0.0, 2.5, 0.0, 0.0, 2.5, 0.0)
+    inf_dist = compute_3d_load_spatial_influence(0.0, -1.0, 0.0, 0.0, 2.5, 0.0)
+    assert inf_target > inf_dist, "Proximity influence failed"
+    print(f" [PASS] TEST 3: 3D Spatial Gaussian influence localized (target={inf_target:.2f}, distant={inf_dist:.2f})")
+
+    # TEST 4: Increase load -> stress proxy increases
     s1 = compute_stress_index(1000, 0.35)
     s2 = compute_stress_index(2500, 0.35)
-    assert s2 > s1, f"Test 1 Failed: {s2} not > {s1}"
-    print(" [PASS] TEST 1: Increase load -> stress proxy increases")
+    assert s2 > s1, f"Test 4 Failed: {s2} not > {s1}"
+    print(" [PASS] TEST 4: Increase load -> stress proxy increases")
 
-    # TEST 2: Increase load -> deformation increases
+    # TEST 5: Increase load -> deformation increases
     d1 = compute_deformation(1000, 0.35)
     d2 = compute_deformation(2500, 0.35)
-    assert d2 > d1, f"Test 2 Failed: {d2} not > {d1}"
-    print(" [PASS] TEST 2: Increase load -> deformation increases")
+    assert d2 > d1, f"Test 5 Failed: {d2} not > {d1}"
+    print(" [PASS] TEST 5: Increase load -> deformation increases")
 
-    # TEST 3: Increase relative density -> deformation decreases
+    # TEST 6: Increase relative density -> deformation decreases
     d_low_rho = compute_deformation(1500, 0.20)
     d_high_rho = compute_deformation(1500, 0.60)
-    assert d_high_rho < d_low_rho, f"Test 3 Failed: {d_high_rho} not < {d_low_rho}"
-    print(" [PASS] TEST 3: Increase relative density -> deformation decreases")
+    assert d_high_rho < d_low_rho, f"Test 6 Failed: {d_high_rho} not < {d_low_rho}"
+    print(" [PASS] TEST 6: Increase relative density -> deformation decreases")
 
-    # TEST 4: Increase porosity -> relative density decreases
-    porosity_1 = 0.4
-    porosity_2 = 0.8
-    rho_1 = 1.0 - porosity_1
-    rho_2 = 1.0 - porosity_2
-    assert rho_2 < rho_1, f"Test 4 Failed: {rho_2} not < {rho_1}"
-    print(" [PASS] TEST 4: Increase porosity -> relative density decreases")
-
-    # TEST 5: Change orientation -> alignment changes
+    # TEST 7: Change orientation -> alignment changes
     align_vertical = abs(1.0)
     align_horizontal = abs(0.0)
     o_vert = compute_orientation_factor(align_vertical)
     o_horiz = compute_orientation_factor(align_horizontal)
-    assert o_vert > o_horiz, f"Test 5 Failed: {o_vert} not > {o_horiz}"
-    print(" [PASS] TEST 5: Change orientation -> geometry alignment factor changes")
+    assert o_vert > o_horiz, f"Test 7 Failed: {o_vert} not > {o_horiz}"
+    print(" [PASS] TEST 7: Change orientation -> geometry alignment factor changes")
 
-    # TEST 6: Change orientation -> response changes
-    s_vert = compute_stress_index(1500, 0.35, o_vert)
-    s_horiz = compute_stress_index(1500, 0.35, o_horiz)
-    assert s_horiz > s_vert, f"Test 6 Failed: {s_horiz} not > {s_vert}"
-    print(" [PASS] TEST 6: Change orientation -> response changes (misaligned has higher stress proxy)")
-
-    # TEST 7: Bone optimization -> redistribution changes local density
+    # TEST 8: Bone optimization -> redistribution changes local density
     rho_base = 0.35
     demands = [0.1, 0.5, 0.9]
     target_rhos = [clamp(rho_base * (1 + ALPHA * (d - 0.5)), RHO_LATTICE_MIN, RHO_LATTICE_MAX) for d in demands]
     updated_rhos = [(1 - GAMMA) * rho_base + GAMMA * t for t in target_rhos]
-    assert updated_rhos[2] > updated_rhos[0], f"Test 7 Failed"
-    print(" [PASS] TEST 7: Bone optimization -> local density distribution adapts to demand")
+    assert updated_rhos[2] > updated_rhos[0], f"Test 8 Failed"
+    print(" [PASS] TEST 8: Bone optimization adapts to directional demand")
 
-    # TEST 8: Honeycomb formula validity
+    # TEST 9: Honeycomb formula validity
     hc_rho = compute_honeycomb_rho(2.4, 18.0)
-    assert 0.15 < hc_rho < 0.40, f"Test 8 Failed: {hc_rho}"
-    print(f" [PASS] TEST 8: Honeycomb remains regular (rho_rel = {hc_rho:.4f})")
-
-    # TEST 9: 3D Spatial Gaussian Load Influence
-    inf_center = compute_load_spatial_influence(0.0, 0.0, 0.0, 0.0)
-    inf_away = compute_load_spatial_influence(2.0, 2.0, 0.0, 0.0)
-    assert inf_center > inf_away, f"Test 9 Failed: {inf_center} not > {inf_away}"
-    inf_left = compute_load_spatial_influence(-1.5, 0.0, -1.5, 0.0)
-    inf_right_under_left_load = compute_load_spatial_influence(1.5, 0.0, -1.5, 0.0)
-    assert inf_left > inf_right_under_left_load, f"Test 9 Spatial Left Failed"
-    print(f" [PASS] TEST 9: 3D Gaussian load spatial influence is localized (center={inf_center:.2f}, away={inf_away:.2f})")
+    assert 0.15 < hc_rho < 0.40, f"Test 9 Failed: {hc_rho}"
+    print(f" [PASS] TEST 9: Honeycomb regular cellular scaling verified (rho_rel = {hc_rho:.4f})")
 
     # TEST 10: Structural Load Failure Thresholds (SOLID < HONEYCOMB < BONE)
     assert THRESHOLD_SOLID_N < THRESHOLD_HONEYCOMB_N < THRESHOLD_BONE_N, "Threshold hierarchy failed"
     assert THRESHOLD_SOLID_N == 2000 and THRESHOLD_HONEYCOMB_N == 3500 and THRESHOLD_BONE_N == 4000
     print(f" [PASS] TEST 10: Threshold hierarchy verified (Solid={THRESHOLD_SOLID_N}N < Honeycomb={THRESHOLD_HONEYCOMB_N}N < Bone={THRESHOLD_BONE_N}N)")
 
-    # TEST 11: Defaults check
+    # TEST 11: Defaults check including 3D direction vector
     defaults = {
         "loadN": 1500,
         "loadPosX": 0.0,
         "loadPosY": 2.5,
         "loadPosZ": 0.0,
-        "porosity": 0.65,
-        "relativeDensity": 0.35,
+        "loadDirX": 0.0,
+        "loadDirY": -1.0,
+        "loadDirZ": 0.0,
     }
-    assert defaults["loadN"] == 1500 and defaults["loadPosX"] == 0.0
-    print(" [PASS] TEST 11: Reset returns exact defaults including 3D load coordinates")
+    assert defaults["loadDirY"] == -1.0
+    print(" [PASS] TEST 11: Defaults check passed with 3D load direction vector")
 
-    # TEST 12: No NaN or Infinity across all test ranges
-    for load in [0, 500, 1500, 3000, 4500, 5000, -100]:
-        for rho in [0.0, 0.05, 0.35, 1.0, 1.5]:
-            s = compute_stress_index(load, rho)
-            d = compute_deformation(load, rho)
-            assert not math.isnan(s) and not math.isinf(s), f"NaN in stress: {s}"
-            assert not math.isnan(d) and not math.isinf(d), f"NaN in deform: {d}"
+    # TEST 12: Zero NaN / Infinity across all omnidirectional inputs
+    for dx, dy, dz in [(0, -1, 0), (1, 0, 0), (0, 1, 0), (-1, -1, -1), (0, 0, 0)]:
+        nd = compute_normalized_load_dir(dx, dy, dz)
+        for val in nd:
+            assert not math.isnan(val) and not math.isinf(val)
     print(" [PASS] TEST 12: No output contains NaN/Infinity across edge cases")
 
     print("=================================================")

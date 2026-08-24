@@ -1,5 +1,5 @@
 // ============================================================
-// stressModel.ts — Conceptual stress proxy
+// stressModel.ts — Conceptual stress proxy & Green->Yellow->Red colors
 // ============================================================
 // IMPORTANT: These are RELATIVE / CONCEPTUAL indices, NOT
 // validated FEM stress results. See disclaimer in the UI.
@@ -60,6 +60,32 @@ export function computeLocalStressIndex(
   globalStressIndex: number
 ): number {
   return safeNumber(clamp(demand * globalStressIndex * 1.2, 0, 100), 0);
+}
+
+/**
+ * Maps normalized demand D ∈ [0, 1] to Stress RGB Color (Green -> Yellow -> Red).
+ * LOW STRESS (0.0–0.33): Green (#4CAF50)
+ * MODERATE STRESS (0.33–0.66): Yellow (#F2C94C)
+ * HIGH STRESS (0.66–1.00): Red (#E05252)
+ */
+export function demandToStressRGB(demand: number): [number, number, number] {
+  const d = clamp(safeNumber(demand, 0), 0, 1);
+  // Green: [0.298, 0.686, 0.314] (#4CAF50)
+  // Yellow: [0.949, 0.788, 0.298] (#F2C94C)
+  // Red: [0.878, 0.322, 0.322] (#E05252)
+  if (d <= 0.5) {
+    const t = d / 0.5;
+    const r = (1 - t) * 0.298 + t * 0.949;
+    const g = (1 - t) * 0.686 + t * 0.788;
+    const b = (1 - t) * 0.314 + t * 0.298;
+    return [r, g, b];
+  } else {
+    const t = (d - 0.5) / 0.5;
+    const r = (1 - t) * 0.949 + t * 0.878;
+    const g = (1 - t) * 0.788 + t * 0.322;
+    const b = (1 - t) * 0.298 + t * 0.322;
+    return [r, g, b];
+  }
 }
 
 /**

@@ -109,7 +109,31 @@
 .sliderStack {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.9rem;
+}
+
+.subHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #1C4C74;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px dashed #D7E2EA;
+  margin-top: 0.2rem;
+}
+
+.coordReadoutSmall {
+  background: #EEF4F8;
+  border: 1px solid #D7E2EA;
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1C4C74;
 }
 
 .coordReadout {
@@ -129,7 +153,7 @@
   border: 1px solid #F5C6CB;
   border-radius: 8px;
   padding: 0.65rem 0.85rem;
-  color: #D9534F;
+  color: #E05252;
   font-size: 0.82rem;
   margin-top: 0.85rem;
   line-height: 1.4;
@@ -177,7 +201,7 @@
   cursor: not-allowed;
 }
 
-/* Stress legend */
+/* Stress legend (Green -> Yellow -> Red) */
 .legendHeader {
   margin-bottom: 0.45rem;
   text-align: center;
@@ -192,10 +216,10 @@
 }
 
 .legendBar {
-  height: 10px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #4FA8E0, #84CCA6, #F0C438);
-  margin-bottom: 0.4rem;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #4CAF50 0%, #F2C94C 50%, #E05252 100%);
+  margin-bottom: 0.45rem;
   border: 1px solid #D7E2EA;
 }
 
@@ -211,7 +235,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.7rem;
-  color: #8C9BAE;
+  color: #62748A;
   margin-top: 0.15rem;
   font-family: "Times New Roman", Times, serif;
 }

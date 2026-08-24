@@ -2,7 +2,7 @@
 
 // ============================================================
 // HoneycombModel.tsx — Regular hexagonal cellular 3D structure
-// Bright, high-contrast cellular walls with localized load deformation
+// Supports omnidirectional 3D load vectors & Green->Yellow->Red stress
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -12,23 +12,20 @@ import {
   generateHoneycombCells,
   computeHoneycombRelativeDensity,
 } from "@/lib/simulation/honeycombModel";
-import { computeDeformation } from "@/lib/simulation/deformationModel";
-import { computeLoadSpatialInfluence } from "@/lib/simulation/loadModel";
+import { computeDeformation, computeOmnidirectionalDeformationVector } from "@/lib/simulation/deformationModel";
+import { compute3DLoadSpatialInfluence, computeNormalizedLoadDirection } from "@/lib/simulation/loadModel";
+import { demandToStressRGB } from "@/lib/simulation/stressModel";
 import { clamp } from "@/lib/simulation/normalize";
 
-// ── Stress-to-colour mapping (Bright Pastel Blue → Pastel Yellow-Gold) ──
+// ── Stress-to-colour mapping: Green (#4CAF50) -> Yellow (#F2C94C) -> Red (#E05252) ──
 function stressToColor(demand: number): THREE.Color {
-  // 0 = bright pastel blue (#74B9FF), 1 = rich pastel yellow-gold (#F9CA24)
-  const d = clamp(demand, 0, 1);
+  const [r, g, b] = demandToStressRGB(demand);
   const color = new THREE.Color();
-  const r = (1 - d) * 0.455 + d * 0.976;
-  const g = (1 - d) * 0.725 + d * 0.792;
-  const b = (1 - d) * 1.000 + d * 0.141;
   color.setRGB(r, g, b);
   return color;
 }
 
-const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#74B9FF");
+const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#A9D8F5");
 
 // ── Hexagonal prism geometry ──────────────────────────────────
 function createHexPrismGeometry(circumRadius: number, height: number, wallThickness: number): THREE.BufferGeometry {
@@ -74,7 +71,11 @@ export function HoneycombModel() {
   const {
     loadN,
     loadPosX,
+    loadPosY,
     loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
     cellSizeMm,
     wallThicknessMm,
     cellCount,
@@ -85,10 +86,33 @@ export function HoneycombModel() {
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
-  // ── Generate cell data with 3D load location ──────────────
+  // ── Generate cell data with omnidirectional 3D load ──────
   const cells = useMemo(
-    () => generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ),
-    [cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ]
+    () =>
+      generateHoneycombCells(
+        cellSizeMm,
+        wallThicknessMm,
+        cellCount,
+        loadN,
+        loadPosX,
+        loadPosY,
+        loadPosZ,
+        loadDirX,
+        loadDirY,
+        loadDirZ
+      ),
+    [
+      cellSizeMm,
+      wallThicknessMm,
+      cellCount,
+      loadN,
+      loadPosX,
+      loadPosY,
+      loadPosZ,
+      loadDirX,
+      loadDirY,
+      loadDirZ,
+    ]
   );
 
   // ── Geometry (shared, reused for instancing) ───────────────
@@ -111,13 +135,30 @@ export function HoneycombModel() {
     const dummy = new THREE.Object3D();
 
     for (const cell of cells) {
-      // Gaussian spatial proximity to (loadPosX, loadPosZ)
-      const spatialFactor = computeLoadSpatialInfluence(cell.centerX, cell.centerZ, loadPosX, loadPosZ);
-      const deformY = showDeformation
-        ? -cell.demand * globalDeform * spatialFactor * 0.28
-        : 0;
+      // 3D Gaussian spatial proximity to (loadPosX, loadPosY, loadPosZ)
+      const spatialFactor = compute3DLoadSpatialInfluence(
+        cell.centerX,
+        cell.centerY,
+        cell.centerZ,
+        loadPosX,
+        loadPosY,
+        loadPosZ
+      );
 
-      dummy.position.set(cell.centerX, cell.centerY + deformY, cell.centerZ);
+      // 3D Omnidirectional deformation displacement vector
+      let [vx, vy, vz] = [0, 0, 0];
+      if (showDeformation) {
+        [vx, vy, vz] = computeOmnidirectionalDeformationVector(
+          globalDeform,
+          cell.demand,
+          spatialFactor,
+          loadDirX,
+          loadDirY,
+          loadDirZ
+        );
+      }
+
+      dummy.position.set(cell.centerX + vx, cell.centerY + vy, cell.centerZ + vz);
       dummy.rotation.set(Math.PI / 2, 0, 0); // lay hex flat on X-Z plane
       dummy.scale.setScalar(1);
       dummy.updateMatrix();
@@ -129,7 +170,18 @@ export function HoneycombModel() {
       colors.push(color);
     }
     return { matrices, colors };
-  }, [cells, showStress, showDeformation, globalDeform, loadPosX, loadPosZ]);
+  }, [
+    cells,
+    showStress,
+    showDeformation,
+    globalDeform,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+  ]);
 
   // ── Apply matrices & colours to InstancedMesh ─────────────
   useLayoutEffect(() => {

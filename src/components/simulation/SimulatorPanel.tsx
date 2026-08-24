@@ -2,16 +2,15 @@
 
 // ============================================================
 // SimulatorPanel.tsx — All simulation controls wired to context
-// Includes 3D XYZ load coordinates, localized load, and failure indicator
+// Includes Omnidirectional 3D Load (Position & Direction) and Green->Yellow->Red Stress Scale
 // ============================================================
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import { SliderControl } from "@/components/ui/SliderControl";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { ModelType } from "@/lib/simulation/types";
 import {
-  PRESETS,
   MAX_OPT_ITERATIONS,
   LOAD_MIN_N,
   LOAD_MAX_N,
@@ -21,7 +20,10 @@ import {
   LOAD_POS_Y_MAX,
   LOAD_POS_Z_MIN,
   LOAD_POS_Z_MAX,
+  LOAD_DIR_MIN,
+  LOAD_DIR_MAX,
 } from "@/lib/simulation/constants";
+import { computeNormalizedLoadDirection } from "@/lib/simulation/loadModel";
 import styles from "./SimulatorPanel.module.css";
 
 const MODEL_OPTIONS: { value: ModelType; label: string; icon: string }[] = [
@@ -37,6 +39,16 @@ export function SimulatorPanel() {
   const isBone = state.modelType === "bone";
   const isHoneycomb = state.modelType === "honeycomb";
   const isSolid = state.modelType === "solid";
+
+  const [ndx, ndy, ndz] = useMemo(
+    () =>
+      computeNormalizedLoadDirection(
+        state.loadDirX,
+        state.loadDirY,
+        state.loadDirZ
+      ),
+    [state.loadDirX, state.loadDirY, state.loadDirZ]
+  );
 
   return (
     <aside className={styles.panel}>
@@ -84,7 +96,7 @@ export function SimulatorPanel() {
         </div>
       </section>
 
-      {/* ── Load Parameters (Applied load + 3D XYZ Position) ─ */}
+      {/* ── Load Parameters (Applied load + 3D Position + 3D Direction) ─ */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
           <span className={styles.sectionIcon}>↓</span>
@@ -103,9 +115,12 @@ export function SimulatorPanel() {
             onChange={(v) => setParam("loadN", v)}
           />
 
-          {/* Coordinate Readout */}
-          <div className={styles.coordReadout}>
-            <span>Target: ({state.loadPosX >= 0 ? "+" : ""}{state.loadPosX.toFixed(2)}, {state.loadPosY.toFixed(2)}, {state.loadPosZ >= 0 ? "+" : ""}{state.loadPosZ.toFixed(2)})</span>
+          {/* Subheading: Load Position */}
+          <div className={styles.subHeading}>
+            <span>Load Position</span>
+            <span className={styles.coordReadoutSmall}>
+              ({state.loadPosX >= 0 ? "+" : ""}{state.loadPosX.toFixed(2)}, {state.loadPosY >= 0 ? "+" : ""}{state.loadPosY.toFixed(2)}, {state.loadPosZ >= 0 ? "+" : ""}{state.loadPosZ.toFixed(2)})
+            </span>
           </div>
 
           <SliderControl
@@ -137,6 +152,44 @@ export function SimulatorPanel() {
             accentColor="blue"
             onChange={(v) => setParam("loadPosZ", parseFloat(v.toFixed(2)))}
           />
+
+          {/* Subheading: Load Direction (Omnidirectional Vector) */}
+          <div className={styles.subHeading} style={{ marginTop: "0.4rem" }}>
+            <span>Load Direction (3D Vector)</span>
+            <span className={styles.coordReadoutSmall}>
+              [{ndx >= 0 ? "+" : ""}{ndx.toFixed(1)}, {ndy >= 0 ? "+" : ""}{ndy.toFixed(1)}, {ndz >= 0 ? "+" : ""}{ndz.toFixed(1)}]
+            </span>
+          </div>
+
+          <SliderControl
+            label="Direction — X (Side)"
+            value={state.loadDirX}
+            min={LOAD_DIR_MIN}
+            max={LOAD_DIR_MAX}
+            step={0.1}
+            accentColor="blue"
+            onChange={(v) => setParam("loadDirX", parseFloat(v.toFixed(1)))}
+          />
+
+          <SliderControl
+            label="Direction — Y (Vertical)"
+            value={state.loadDirY}
+            min={LOAD_DIR_MIN}
+            max={LOAD_DIR_MAX}
+            step={0.1}
+            accentColor="blue"
+            onChange={(v) => setParam("loadDirY", parseFloat(v.toFixed(1)))}
+          />
+
+          <SliderControl
+            label="Direction — Z (Depth)"
+            value={state.loadDirZ}
+            min={LOAD_DIR_MIN}
+            max={LOAD_DIR_MAX}
+            step={0.1}
+            accentColor="blue"
+            onChange={(v) => setParam("loadDirZ", parseFloat(v.toFixed(1)))}
+          />
         </div>
 
         {/* Structural Load Threshold / Failure Indicator */}
@@ -147,8 +200,8 @@ export function SimulatorPanel() {
               {isHoneycomb && "⚠ HIGH STRESS EXCEEDED"}
               {isBone && "⚠ HIGH DEMAND REGIME"}
             </div>
-            <div style={{ fontSize: "0.72rem", marginTop: 2 }}>
-              {isSolid && `Masonry threshold (${output.failureThresholdN} N) exceeded at center.`}
+            <div style={{ fontSize: "0.76rem", marginTop: 2 }}>
+              {isSolid && `Masonry threshold (${output.failureThresholdN} N) exceeded.`}
               {isHoneycomb && `Honeycomb threshold (${output.failureThresholdN} N) exceeded.`}
               {isBone && `Bone lattice threshold (${output.failureThresholdN} N) exceeded.`}
             </div>
@@ -309,7 +362,7 @@ export function SimulatorPanel() {
         </section>
       )}
 
-      {/* ── Stress legend ─────────────────────────────────── */}
+      {/* ── Stress legend (Green -> Yellow -> Red) ─────────── */}
       {state.showStress && (
         <section className={styles.section}>
           <div className={styles.sectionTitle}>
@@ -321,14 +374,14 @@ export function SimulatorPanel() {
           </div>
           <div className={styles.legendBar} />
           <div className={styles.legendLabels}>
-            <span style={{ color: "#1C4C74", fontWeight: 700 }}>LOW</span>
-            <span style={{ color: "#62748A", fontWeight: 600 }}>MODERATE</span>
-            <span style={{ color: "#634B00", fontWeight: 700 }}>HIGH</span>
+            <span style={{ color: "#2E7D32", fontWeight: 700 }}>LOW</span>
+            <span style={{ color: "#B78103", fontWeight: 700 }}>MODERATE</span>
+            <span style={{ color: "#C62828", fontWeight: 700 }}>HIGH</span>
           </div>
           <div className={styles.legendColorLabels}>
-            <span>Pastel Blue</span>
-            <span>Blue-Yellow</span>
-            <span>Pastel Yellow</span>
+            <span style={{ color: "#2E7D32" }}>Green (#4CAF50)</span>
+            <span style={{ color: "#B78103" }}>Yellow (#F2C94C)</span>
+            <span style={{ color: "#C62828" }}>Red (#E05252)</span>
           </div>
         </section>
       )}

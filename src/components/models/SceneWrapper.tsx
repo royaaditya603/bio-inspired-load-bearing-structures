@@ -80,7 +80,17 @@ function SceneGrid() {
 
 function SceneContent() {
   const { state } = useSimulation();
-  const { modelType, showLoadArrows, loadN, loadPosX, loadPosY, loadPosZ } = state;
+  const {
+    modelType,
+    showLoadArrows,
+    loadN,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+  } = state;
 
   return (
     <>
@@ -90,13 +100,16 @@ function SceneContent() {
       <SceneLighting />
       <SceneGrid />
 
-      {/* 3D Load arrow tracking XYZ position */}
+      {/* 3D Omnidirectional Load arrow tracking XYZ position and 3D direction vector */}
       {showLoadArrows && (
         <LoadArrow
           loadN={loadN}
           posX={loadPosX}
           posY={loadPosY}
           posZ={loadPosZ}
+          dirX={loadDirX}
+          dirY={loadDirY}
+          dirZ={loadDirZ}
         />
       )}
 

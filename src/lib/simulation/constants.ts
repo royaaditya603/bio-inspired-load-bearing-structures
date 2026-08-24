@@ -18,13 +18,22 @@ export const LOAD_MAX_N = 4500;
 // ─── 3D Load Position Bounds ─────────────────────────────────
 export const LOAD_POS_X_MIN = -2.0;
 export const LOAD_POS_X_MAX = 2.0;
-export const LOAD_POS_Y_MIN = 0.5;
+export const LOAD_POS_Y_MIN = -2.0;
 export const LOAD_POS_Y_MAX = 3.5;
 export const LOAD_POS_Z_MIN = -2.0;
 export const LOAD_POS_Z_MAX = 2.0;
 
+// ─── 3D Load Direction Bounds ────────────────────────────────
+export const LOAD_DIR_MIN = -1.0;
+export const LOAD_DIR_MAX = 1.0;
+
 /** Gaussian spatial influence radius σ for localized load demand */
 export const LOAD_INFLUENCE_SIGMA = 1.3;
+
+// ─── Stress Colors (Green -> Yellow -> Red) ──────────────────
+export const STRESS_COLOR_LOW = "#4CAF50";    // Green
+export const STRESS_COLOR_MID = "#F2C94C";    // Yellow
+export const STRESS_COLOR_HIGH = "#E05252";   // Red
 
 // ─── Porosity / density ranges ───────────────────────────────
 export const RHO_MIN = 0.10;
@@ -60,6 +69,9 @@ export const DEFAULT_STATE: SimulationState = {
   loadPosX: 0.0,
   loadPosY: 2.5,
   loadPosZ: 0.0,
+  loadDirX: 0.0,
+  loadDirY: -1.0,
+  loadDirZ: 0.0,
   porosity: 0.65,
   relativeDensity: 0.35,
   orientationDeg: 60,
@@ -100,6 +112,9 @@ export const PRESETS = {
     loadPosX: 0.0,
     loadPosY: 2.5,
     loadPosZ: 0.0,
+    loadDirX: 0.0,
+    loadDirY: -1.0,
+    loadDirZ: 0.0,
     porosity: 0.78,
     relativeDensity: 0.22,
     wallThicknessMm: 1.5,
@@ -113,6 +128,9 @@ export const PRESETS = {
     loadPosX: 0.0,
     loadPosY: 2.5,
     loadPosZ: 0.0,
+    loadDirX: 0.0,
+    loadDirY: -1.0,
+    loadDirZ: 0.0,
     porosity: 0.65,
     relativeDensity: 0.35,
     wallThicknessMm: 2.4,
@@ -126,6 +144,9 @@ export const PRESETS = {
     loadPosX: 0.0,
     loadPosY: 2.5,
     loadPosZ: 0.0,
+    loadDirX: 0.0,
+    loadDirY: -1.0,
+    loadDirZ: 0.0,
     porosity: 0.40,
     relativeDensity: 0.60,
     wallThicknessMm: 4.0,

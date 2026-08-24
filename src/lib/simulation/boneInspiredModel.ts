@@ -2,7 +2,7 @@
 // boneInspiredModel.ts — Trabecular-inspired strut lattice
 // ============================================================
 // Generates an ENGINEERED STRUCTURAL LATTICE inspired by
-// trabecular bone — NOT a literal anatomical femur model.
+// trabecular bone with omnidirectional 3D load responsiveness.
 // ============================================================
 
 import type { StrutElement } from "./types";
@@ -17,7 +17,11 @@ import {
   EPSILON,
   STIFFNESS_EXPONENT,
 } from "./constants";
-import { computeNormalizedLoad, computeLoadSpatialInfluence } from "./loadModel";
+import {
+  computeNormalizedLoad,
+  compute3DLoadSpatialInfluence,
+  computeNormalizedLoadDirection,
+} from "./loadModel";
 
 // ─── Deterministic pseudo-random (seeded) ────────────────────
 function seededRandom(seed: number): () => number {
@@ -30,22 +34,23 @@ function seededRandom(seed: number): () => number {
 
 // ─── Orientation / load-path factor ──────────────────────────
 
-/** Primary load direction (downward, Y-axis in world space) */
-const LOAD_DIR: [number, number, number] = [0, -1, 0];
-
 /**
- * Compute dot-product alignment of a strut with the primary load direction.
+ * Compute dot-product alignment of a strut with the applied 3D load direction vector.
  * Returns |cos θ| so both aligned and anti-aligned struts count equally.
  */
 export function computeAlignment(
   dx: number,
   dy: number,
-  dz: number
+  dz: number,
+  loadDirX = 0,
+  loadDirY = -1,
+  loadDirZ = 0
 ): number {
   const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
   if (len < EPSILON) return 0;
+  const [ldx, ldy, ldz] = computeNormalizedLoadDirection(loadDirX, loadDirY, loadDirZ);
   const nx = dx / len, ny = dy / len, nz = dz / len;
-  const dot = nx * LOAD_DIR[0] + ny * LOAD_DIR[1] + nz * LOAD_DIR[2];
+  const dot = nx * ldx + ny * ldy + nz * ldz;
   return safeNumber(Math.abs(dot), 0);
 }
 
@@ -64,14 +69,14 @@ export function computeOrientationFactor(alignment: number): number {
 // ─── Local demand field ───────────────────────────────────────
 
 /**
- * Compute local demand D_i for a strut.
+ * Compute local demand D_i for a strut under omnidirectional 3D loading.
  *
  * D_i = normalize(W_i × L_i × O_i × spatialFactor × F_norm)
  *
  * @param z_norm Normalised vertical position of strut midpoint [0,1]
  * @param alignment Strut alignment with load direction [0,1]
  * @param F_norm Normalised applied load [0,1]
- * @param spatialFactor Proximity to 3D applied load point (default 1.0)
+ * @param spatialFactor 3D Proximity to applied load point (default 1.0)
  * @param beta Load-path vertical sensitivity
  */
 export function computeLocalDemand(
@@ -79,14 +84,14 @@ export function computeLocalDemand(
   alignment: number,
   F_norm: number,
   spatialFactor = 1.0,
-  beta = 0.6
+  beta = 0.5
 ): number {
   const W_i = 1 + beta * z_norm;
-  const L_i = 0.4 + 0.6 * alignment; // load-path influence
+  const L_i = 0.35 + 0.65 * alignment; // load-path influence
   const O_i = computeOrientationFactor(alignment);
-  const S_i = 0.35 + 0.65 * spatialFactor; // localized load factor
+  const S_i = 0.35 + 0.65 * spatialFactor; // 3D localized load factor
   const raw = W_i * L_i * O_i * S_i * F_norm;
-  return clamp(safeNumber(raw / 1.6, 0), 0, 1);
+  return clamp(safeNumber(raw / 1.5, 0), 0, 1);
 }
 
 // ─── Local density from demand ────────────────────────────────
@@ -134,10 +139,31 @@ export function computeBoneRelativeStiffness(
   return safeNumber(Math.pow(rho, STIFFNESS_EXPONENT) * oFac, EPSILON);
 }
 
+/**
+ * Returns the exact 3D bounding box of the bone model.
+ */
+export function getBoneModelBounds(
+  cellSizeMm: number,
+  cellCount: number
+): { minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number } {
+  const gridN = clamp(Math.round(cellCount), 2, 8);
+  const span = clamp(cellSizeMm, 5, 50) / 10;
+  const totalSpan = gridN * span;
+  const half = totalSpan / 2;
+  return {
+    minX: -half,
+    maxX: half,
+    minY: -half,
+    maxY: half,
+    minZ: -half,
+    maxZ: half,
+  };
+}
+
 // ─── Strut network generation ─────────────────────────────────
 
 /**
- * Generate the bone-inspired strut network with 3D localized load influence.
+ * Generate the bone-inspired strut network with omnidirectional 3D localized load influence.
  *
  * @param cellSizeMm      Cell characteristic length in mm
  * @param cellCount       Approx number of cells across one axis
@@ -146,7 +172,11 @@ export function computeBoneRelativeStiffness(
  * @param rho_base        Base relative density
  * @param seed            Random seed for reproducibility
  * @param loadPosX        Applied load X position
+ * @param loadPosY        Applied load Y position
  * @param loadPosZ        Applied load Z position
+ * @param loadDirX        Load direction X
+ * @param loadDirY        Load direction Y
+ * @param loadDirZ        Load direction Z
  */
 export function generateStrutNetwork(
   cellSizeMm: number,
@@ -156,7 +186,11 @@ export function generateStrutNetwork(
   rho_base: number,
   seed = 42,
   loadPosX = 0,
-  loadPosZ = 0
+  loadPosY = 2.5,
+  loadPosZ = 0,
+  loadDirX = 0,
+  loadDirY = -1,
+  loadDirZ = 0
 ): StrutElement[] {
   const rand = seededRandom(seed);
 
@@ -212,11 +246,11 @@ export function generateStrutNetwork(
       // Normalised vertical position of midpoint [0,1]
       const z_norm = normalize(my, -half, half);
 
-      // Alignment with load direction
-      const alignment = computeAlignment(dx, dy, dz);
+      // Alignment with 3D load direction vector
+      const alignment = computeAlignment(dx, dy, dz, loadDirX, loadDirY, loadDirZ);
 
-      // Spatial factor from 3D load position
-      const spatialFactor = computeLoadSpatialInfluence(mx, mz, loadPosX, loadPosZ);
+      // 3D Spatial factor from 3D load position
+      const spatialFactor = compute3DLoadSpatialInfluence(mx, my, mz, loadPosX, loadPosY, loadPosZ);
 
       // Demand field
       const demand = computeLocalDemand(z_norm, alignment, F_norm, spatialFactor);

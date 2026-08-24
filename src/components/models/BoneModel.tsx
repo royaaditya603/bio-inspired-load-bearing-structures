@@ -2,33 +2,35 @@
 
 // ============================================================
 // BoneModel.tsx — Irregular trabecular-inspired strut lattice
-// Bright, high-contrast variable-density lattice with 3D localized load
+// Supports 3D omnidirectional load vectors & Green->Yellow->Red stress
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
-import { clamp } from "@/lib/simulation/normalize";
-import { computeLoadSpatialInfluence } from "@/lib/simulation/loadModel";
+import { compute3DLoadSpatialInfluence } from "@/lib/simulation/loadModel";
+import { computeOmnidirectionalDeformationVector } from "@/lib/simulation/deformationModel";
+import { demandToStressRGB } from "@/lib/simulation/stressModel";
 import type { StrutElement } from "@/lib/simulation/types";
 
-// ── Stress-to-colour mapping (Bright Pastel Blue → Pastel Yellow-Gold) ──
+// ── Stress-to-colour mapping: Green (#4CAF50) -> Yellow (#F2C94C) -> Red (#E05252) ──
 function demandToColor(demand: number): THREE.Color {
-  const d = clamp(demand, 0, 1);
+  const [r, g, b] = demandToStressRGB(demand);
   const color = new THREE.Color();
-  const r = (1 - d) * 0.455 + d * 0.976;
-  const g = (1 - d) * 0.725 + d * 0.792;
-  const b = (1 - d) * 1.000 + d * 0.141;
   color.setRGB(r, g, b);
   return color;
 }
 
-const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#74B9FF");
+const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#A9D8F5");
 
-// ── Cylinder matrix for a strut ───────────────────────────────
-function strutMatrix(s: StrutElement, deformY: number): THREE.Matrix4 {
+// ── Cylinder matrix for a strut under 3D omnidirectional deformation ──
+function strutMatrix(
+  s: StrutElement,
+  deformVec: [number, number, number]
+): THREE.Matrix4 {
+  const [vx, vy, vz] = deformVec;
   const start = new THREE.Vector3(s.startX, s.startY, s.startZ);
-  const end = new THREE.Vector3(s.endX, s.endY + deformY, s.endZ);
+  const end = new THREE.Vector3(s.endX + vx, s.endY + vy, s.endZ + vz);
   const dir = end.clone().sub(start);
   const len = dir.length();
   const mid = start.clone().add(end).multiplyScalar(0.5);
@@ -57,7 +59,11 @@ interface BoneInstancedProps {
   showDeformation: boolean;
   globalDeform: number;
   loadPosX: number;
+  loadPosY: number;
   loadPosZ: number;
+  loadDirX: number;
+  loadDirY: number;
+  loadDirZ: number;
 }
 
 function BoneInstanced({
@@ -66,7 +72,11 @@ function BoneInstanced({
   showDeformation,
   globalDeform,
   loadPosX,
+  loadPosY,
   loadPosZ,
+  loadDirX,
+  loadDirY,
+  loadDirZ,
 }: BoneInstancedProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
@@ -83,17 +93,50 @@ function BoneInstanced({
 
     for (const s of struts) {
       const mx = (s.startX + s.endX) / 2;
+      const my = (s.startY + s.endY) / 2;
       const mz = (s.startZ + s.endZ) / 2;
-      const spatialFactor = computeLoadSpatialInfluence(mx, mz, loadPosX, loadPosZ);
-      const deformY = showDeformation ? -s.demand * globalDeform * spatialFactor * 0.22 : 0;
 
-      matrices.push(strutMatrix(s, deformY));
+      // 3D Gaussian proximity to load application point
+      const spatialFactor = compute3DLoadSpatialInfluence(
+        mx,
+        my,
+        mz,
+        loadPosX,
+        loadPosY,
+        loadPosZ
+      );
+
+      // 3D Omnidirectional displacement vector
+      let deformVec: [number, number, number] = [0, 0, 0];
+      if (showDeformation) {
+        deformVec = computeOmnidirectionalDeformationVector(
+          globalDeform,
+          s.demand,
+          spatialFactor,
+          loadDirX,
+          loadDirY,
+          loadDirZ
+        );
+      }
+
+      matrices.push(strutMatrix(s, deformVec));
       colors.push(
         showStress ? demandToColor(s.demand) : DEFAULT_STRUCTURAL_COLOR
       );
     }
     return { matrices, colors };
-  }, [struts, showStress, showDeformation, globalDeform, loadPosX, loadPosZ]);
+  }, [
+    struts,
+    showStress,
+    showDeformation,
+    globalDeform,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+  ]);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;
@@ -126,7 +169,17 @@ function BoneInstanced({
 
 export function BoneModel() {
   const { state, output } = useSimulation();
-  const { showStress, showDeformation, deformationScale, loadPosX, loadPosZ } = state;
+  const {
+    showStress,
+    showDeformation,
+    deformationScale,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+  } = state;
 
   const struts = output.struts ?? [];
   const globalDeform = output.deformation * deformationScale;
@@ -135,7 +188,7 @@ export function BoneModel() {
     return (
       <mesh>
         <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color="#74B9FF" />
+        <meshStandardMaterial color="#A9D8F5" />
       </mesh>
     );
   }
@@ -148,7 +201,11 @@ export function BoneModel() {
         showDeformation={showDeformation}
         globalDeform={globalDeform}
         loadPosX={loadPosX}
+        loadPosY={loadPosY}
         loadPosZ={loadPosZ}
+        loadDirX={loadDirX}
+        loadDirY={loadDirY}
+        loadDirZ={loadDirZ}
       />
     </group>
   );

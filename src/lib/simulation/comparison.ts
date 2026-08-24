@@ -38,7 +38,19 @@ import {
  * using the SAME applied load from the simulation state.
  */
 export function computeComparison(state: SimulationState): ComparisonResult[] {
-  const { loadN, cellSizeMm, wallThicknessMm, cellCount, orientationDeg, loadPosX, loadPosZ } = state;
+  const {
+    loadN,
+    cellSizeMm,
+    wallThicknessMm,
+    cellCount,
+    orientationDeg,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ,
+  } = state;
 
   // ─── SOLID (Conventional Masonry / Brick Structure) ─────────
   const solidRho = 1.0;
@@ -67,7 +79,18 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
   const hcPorosity = computeHoneycombPorosity(hcRho);
   const hcStressIndex = computeStressIndex(loadN, hcRho, 0.85);
   const hcDeformation = computeDeformation(loadN, hcRho, 1.0, 0.85);
-  const hcCells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ);
+  const hcCells = generateHoneycombCells(
+    cellSizeMm,
+    wallThicknessMm,
+    cellCount,
+    loadN,
+    loadPosX,
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ
+  );
   const hcSolidVol = computeHoneycombSolidVolume(hcCells, wallThicknessMm, cellSizeMm);
   const hcMass = estimateMassGrams(hcSolidVol, MATERIAL_PA12.density);
   const hcStiffness = computeRelativeStiffness(hcRho);
@@ -95,7 +118,11 @@ export function computeComparison(state: SimulationState): ComparisonResult[] {
     rho_base,
     42,
     loadPosX,
-    loadPosZ
+    loadPosY,
+    loadPosZ,
+    loadDirX,
+    loadDirY,
+    loadDirZ
   );
   const boneAvgRho = computeAverageRelativeDensity(struts);
   const bonePorosity = clamp(1 - boneAvgRho, 0, 1);

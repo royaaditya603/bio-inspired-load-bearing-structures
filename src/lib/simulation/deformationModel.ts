@@ -1,12 +1,12 @@
 // ============================================================
-// deformationModel.ts — Conceptual deformation proxy
+// deformationModel.ts — Conceptual omnidirectional deformation proxy
 // ============================================================
 // IMPORTANT: Visual deformation is exaggerated for illustration.
 // It is NOT a validated structural displacement calculation.
 // ============================================================
 
 import { clamp, safeNumber } from "./normalize";
-import { computeNormalizedLoad } from "./loadModel";
+import { computeNormalizedLoad, computeNormalizedLoadDirection } from "./loadModel";
 import { computeRelativeStiffness } from "./stressModel";
 import { EPSILON, GEOMETRY_SCALE } from "./constants";
 
@@ -57,17 +57,29 @@ export function computeLocalDeformation(
 }
 
 /**
- * Deformation displacement vector (downward, Y-axis, scene units).
- * Points in the direction of the applied load.
+ * Omnidirectional 3D Deformation displacement vector in scene units.
+ * Follows the 3D normalized load direction vector (dirX, dirY, dirZ).
+ *
+ * @param globalDeformation Global visual deformation
+ * @param demand Local demand D_i ∈ [0,1]
+ * @param spatialInfluence Gaussian spatial factor ∈ [0.05, 1.0]
+ * @param dirX Load direction X
+ * @param dirY Load direction Y
+ * @param dirZ Load direction Z
  */
-export function computeDeformationVector(
-  y: number,
+export function computeOmnidirectionalDeformationVector(
   globalDeformation: number,
-  demand: number
+  demand: number,
+  spatialInfluence: number,
+  dirX = 0,
+  dirY = -1,
+  dirZ = 0
 ): [number, number, number] {
-  // Elements near y=0 (support) have zero deformation;
-  // elements near y=1 (load point) have maximum deformation.
-  const localDelta = computeLocalDeformation(globalDeformation, demand);
-  const yFactor = clamp(y, 0, 1); // normalised vertical position
-  return [0, -localDelta * yFactor, 0];
+  const [ndx, ndy, ndz] = computeNormalizedLoadDirection(dirX, dirY, dirZ);
+  const mag = computeLocalDeformation(globalDeformation, demand) * spatialInfluence * 0.35;
+  return [
+    safeNumber(ndx * mag, 0),
+    safeNumber(ndy * mag, 0),
+    safeNumber(ndz * mag, 0),
+  ];
 }

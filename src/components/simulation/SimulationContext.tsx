@@ -93,7 +93,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const {
       loadN,
       loadPosX,
+      loadPosY,
       loadPosZ,
+      loadDirX,
+      loadDirY,
+      loadDirZ,
       modelType,
       cellSizeMm,
       wallThicknessMm,
@@ -130,7 +134,18 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       const porosity = computeHoneycombPorosity(rho);
       const stressIndex = computeStressIndex(loadN, rho, 0.85);
       const deformation = computeDeformation(loadN, rho, deformationScale, 0.85);
-      const cells = generateHoneycombCells(cellSizeMm, wallThicknessMm, cellCount, loadN, loadPosX, loadPosZ);
+      const cells = generateHoneycombCells(
+        cellSizeMm,
+        wallThicknessMm,
+        cellCount,
+        loadN,
+        loadPosX,
+        loadPosY,
+        loadPosZ,
+        loadDirX,
+        loadDirY,
+        loadDirZ
+      );
       const solidVol = computeHoneycombSolidVolume(cells, wallThicknessMm, cellSizeMm);
       const massG = estimateMassGrams(solidVol, MATERIAL_PA12.density);
       const stiffness = computeRelativeStiffness(rho);
@@ -156,7 +171,20 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     const half = (gridN * span) / 2;
     const r_base = clamp(span * 0.12, 0.04, 0.4);
 
-    let struts = generateStrutNetwork(cellSizeMm, cellCount, loadN, orientationDeg, rho_base, 42, loadPosX, loadPosZ);
+    let struts = generateStrutNetwork(
+      cellSizeMm,
+      cellCount,
+      loadN,
+      orientationDeg,
+      rho_base,
+      42,
+      loadPosX,
+      loadPosY,
+      loadPosZ,
+      loadDirX,
+      loadDirY,
+      loadDirZ
+    );
 
     if (optimizationIteration > 0) {
       const result = runOptimization(struts, rho_base, r_base, loadN, half, optimizationIteration);

@@ -31,10 +31,10 @@
   --text-muted:     #62748A;
   --text-dim:       #8C9BAE;
 
-  /* ── Stress colour scale ───────────────────────────────── */
-  --stress-low:     #A9D8F5;
-  --stress-mid:     #BCE3CF;
-  --stress-high:    #F8E7A6;
+  /* ── Stress colour scale (Green -> Yellow -> Red) ──────── */
+  --stress-low:     #4CAF50;
+  --stress-mid:     #F2C94C;
+  --stress-high:    #E05252;
 
   /* ── Sizing & Radii ────────────────────────────────────── */
   --radius-sm:      6px;
