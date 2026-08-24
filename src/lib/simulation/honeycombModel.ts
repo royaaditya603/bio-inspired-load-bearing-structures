@@ -1,9 +1,9 @@
 // ============================================================
-// honeycombModel.ts — Honeycomb geometry and omnidirectional math
+// honeycombModel.ts — Continuous 3D Honeycomb Structural Core Grid
 // ============================================================
 
 import type { HexCell } from "./types";
-import { clamp, safeNumber, normalize } from "./normalize";
+import { clamp, safeNumber } from "./normalize";
 import {
   RHO_MIN,
   RHO_MAX,
@@ -24,10 +24,6 @@ import {
  * ρ_rel ≈ (2/√3) × (t/l)
  *
  * SOURCE: Gibson & Ashby "Cellular Solids" approximation.
- * This is a conceptual thin-wall approximation, not an exact formula.
- *
- * @param wallThickness t in the same units as cellSize
- * @param cellSize l (characteristic cell length)
  */
 export function computeHoneycombRelativeDensity(
   wallThickness: number,
@@ -68,47 +64,50 @@ export function computeHoneycombEffectiveModulus(
   );
 }
 
-// ─── Hex grid generation ─────────────────────────────────────
+// ─── Continuous Hex Grid Generation ──────────────────────────
 
 /**
- * Axial-to-Cartesian for pointy-top hexagonal grid.
- * q, r are axial hex coordinates.
- * size is the circumradius of the hex.
+ * Axial-to-Cartesian for pointy-top regular hexagonal grid.
+ * Distance between adjacent cell centers is exactly sqrt(3) * R.
+ *
+ * @param q Axial coordinate q
+ * @param r Axial coordinate r
+ * @param R Circumradius of regular hexagon
  */
 function hexToCartesian(
   q: number,
   r: number,
-  size: number
+  R: number
 ): [number, number] {
-  const x = size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
-  const y = size * (3 / 2) * r;
-  return [x, y];
+  const x = R * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
+  const z = R * (3 / 2) * r;
+  return [x, z];
 }
 
 /**
- * Generate hex cell centers for a grid of approximate `gridRadius` rings.
+ * Generate hex cell centers forming a continuous, compact 3D honeycomb grid.
  */
-function generateHexCenters(
+export function generateHexCenters(
   gridRadius: number,
-  cellSizeScene: number
+  R: number
 ): [number, number][] {
   const centers: [number, number][] = [];
   for (let q = -gridRadius; q <= gridRadius; q++) {
     const r1 = Math.max(-gridRadius, -q - gridRadius);
     const r2 = Math.min(gridRadius, -q + gridRadius);
     for (let r = r1; r <= r2; r++) {
-      centers.push(hexToCartesian(q, r, cellSizeScene));
+      centers.push(hexToCartesian(q, r, R));
     }
   }
   return centers;
 }
 
 /**
- * Generate the full honeycomb cell dataset with omnidirectional 3D spatial and directional load influence.
+ * Generate the continuous honeycomb cell dataset with omnidirectional 3D load influence.
  *
- * @param cellSizeMm      Cell circumradius in mm (converted to scene units: ÷10)
+ * @param cellSizeMm      Cell circumradius in mm
  * @param wallThicknessMm Wall thickness in mm
- * @param cellCount       Number of rings (not total cells)
+ * @param cellCount       Number of rings in compact grid
  * @param F               Applied load in N
  * @param loadPosX        Load 3D X position
  * @param loadPosY        Load 3D Y position
@@ -129,9 +128,11 @@ export function generateHoneycombCells(
   loadDirY = -1,
   loadDirZ = 0
 ): HexCell[] {
-  const cellSizeScene = clamp(cellSizeMm, 5, 50) / 10; // mm → scene units
-  const gridRadius = clamp(Math.round(cellCount), 1, 10);
-  const centers = generateHexCenters(gridRadius, cellSizeScene);
+  const gridRadius = clamp(Math.round(cellCount), 1, 6);
+  // Compact continuous block: total block width ~ 3.4 units
+  const totalBlockSpan = 3.4;
+  const R = totalBlockSpan / (gridRadius * 2 * Math.sqrt(3) * 0.55 + 1.2);
+  const centers = generateHexCenters(gridRadius, R);
 
   const F_norm = computeNormalizedLoad(F);
   const rho_rel = computeHoneycombRelativeDensity(wallThicknessMm, cellSizeMm);
@@ -143,10 +144,8 @@ export function generateHoneycombCells(
 
     // Directional participation factor:
     // Honeycomb has high axial stiffness along Y (ndy) and lateral bending response along X/Z (ndx, ndz)
-    const cellNormalY = 1.0;
-    const axialAlign = Math.abs(ndy * cellNormalY);
+    const axialAlign = Math.abs(ndy);
     const lateralAlign = Math.sqrt(ndx * ndx + ndz * ndz);
-    // Lateral loads cause higher localized bending demand on cell walls
     const dirSensitivity = 0.8 * axialAlign + 1.2 * lateralAlign;
 
     // Demand D_i ∈ [0, 1]
@@ -177,7 +176,6 @@ export function generateHoneycombCells(
 
 /**
  * Compute total estimated solid volume from hex cell data.
- * Approximation: each hex cell wall contributes a thin-walled tube segment.
  */
 export function computeHoneycombSolidVolume(
   cells: HexCell[],

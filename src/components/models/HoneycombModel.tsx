@@ -1,8 +1,8 @@
 "use client";
 
 // ============================================================
-// HoneycombModel.tsx — Regular hexagonal cellular 3D structure
-// Supports omnidirectional 3D load vectors & Green->Yellow->Red stress
+// HoneycombModel.tsx — Continuous 3D Honeycomb Structural Grid
+// Forms a seamless, connected honeycomb sandwich core with shared walls.
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -13,7 +13,7 @@ import {
   computeHoneycombRelativeDensity,
 } from "@/lib/simulation/honeycombModel";
 import { computeDeformation, computeOmnidirectionalDeformationVector } from "@/lib/simulation/deformationModel";
-import { compute3DLoadSpatialInfluence, computeNormalizedLoadDirection } from "@/lib/simulation/loadModel";
+import { compute3DLoadSpatialInfluence } from "@/lib/simulation/loadModel";
 import { demandToStressRGB } from "@/lib/simulation/stressModel";
 import { clamp } from "@/lib/simulation/normalize";
 
@@ -27,10 +27,17 @@ function stressToColor(demand: number): THREE.Color {
 
 const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#A9D8F5");
 
-// ── Hexagonal prism geometry ──────────────────────────────────
-function createHexPrismGeometry(circumRadius: number, height: number, wallThickness: number): THREE.BufferGeometry {
-  const outerR = circumRadius;
-  const innerR = Math.max(circumRadius - wallThickness, circumRadius * 0.1);
+// ── Continuous Hexagonal Prism with Shared Wall Outer Boundary ──
+function createContinuousHexPrismGeometry(
+  R: number,
+  height: number,
+  wallThicknessMm: number,
+  cellSizeMm: number
+): THREE.BufferGeometry {
+  const outerR = R;
+  // Normalized wall thickness proportion
+  const wtRatio = clamp(wallThicknessMm / cellSizeMm, 0.05, 0.45);
+  const innerR = Math.max(outerR * (1 - wtRatio), outerR * 0.15);
 
   const shape = new THREE.Shape();
   for (let i = 0; i < 6; i++) {
@@ -42,7 +49,7 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
   }
   shape.closePath();
 
-  // Hole (inner void)
+  // Inner hollow void
   const hole = new THREE.Path();
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 6;
@@ -58,8 +65,8 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
     depth: height,
     bevelEnabled: true,
     bevelSegments: 1,
-    bevelSize: 0.02,
-    bevelThickness: 0.02,
+    bevelSize: 0.015,
+    bevelThickness: 0.015,
   });
   geo.center();
   geo.computeVertexNormals();
@@ -67,7 +74,7 @@ function createHexPrismGeometry(circumRadius: number, height: number, wallThickn
 }
 
 export function HoneycombModel() {
-  const { state } = useSimulation();
+  const { state, setParam } = useSimulation();
   const {
     loadN,
     loadPosX,
@@ -86,7 +93,7 @@ export function HoneycombModel() {
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
-  // ── Generate cell data with omnidirectional 3D load ──────
+  // ── Generate cell data with continuous 3D grid layout ─────
   const cells = useMemo(
     () =>
       generateHoneycombCells(
@@ -115,14 +122,15 @@ export function HoneycombModel() {
     ]
   );
 
-  // ── Geometry (shared, reused for instancing) ───────────────
+  // ── Continuous shared-wall geometry ───────────────────────
   const { geometry } = useMemo(() => {
-    const circumRadius = (clamp(cellSizeMm, 5, 50) / 10) * 0.48;
-    const wt = clamp(wallThicknessMm, 0.5, 8) / 10;
-    const height = 2.0;
-    const geo = createHexPrismGeometry(circumRadius, height, wt);
+    const gridRadius = clamp(Math.round(cellCount), 1, 6);
+    const totalBlockSpan = 3.4;
+    const R = totalBlockSpan / (gridRadius * 2 * Math.sqrt(3) * 0.55 + 1.2);
+    const height = 1.8;
+    const geo = createContinuousHexPrismGeometry(R, height, wallThicknessMm, cellSizeMm);
     return { geometry: geo };
-  }, [cellSizeMm, wallThicknessMm]);
+  }, [cellSizeMm, wallThicknessMm, cellCount]);
 
   // ── Global deformation for animation ──────────────────────
   const rho = computeHoneycombRelativeDensity(wallThicknessMm, cellSizeMm);
@@ -204,6 +212,12 @@ export function HoneycombModel() {
         args={[geometry, undefined, cells.length]}
         castShadow
         receiveShadow
+        onClick={(e) => {
+          e.stopPropagation();
+          setParam("loadPosX", parseFloat(e.point.x.toFixed(2)));
+          setParam("loadPosY", parseFloat(e.point.y.toFixed(2)));
+          setParam("loadPosZ", parseFloat(e.point.z.toFixed(2)));
+        }}
       >
         <meshStandardMaterial
           color="#FFFFFF"

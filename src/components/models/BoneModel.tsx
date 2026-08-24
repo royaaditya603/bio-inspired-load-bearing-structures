@@ -1,8 +1,8 @@
 "use client";
 
 // ============================================================
-// BoneModel.tsx — Irregular trabecular-inspired strut lattice
-// Supports 3D omnidirectional load vectors & Green->Yellow->Red stress
+// BoneModel.tsx — Compact trabecular-inspired strut lattice
+// Supports cursor raycasting, omnidirectional load & Green->Yellow->Red stress
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -64,6 +64,7 @@ interface BoneInstancedProps {
   loadDirX: number;
   loadDirY: number;
   loadDirZ: number;
+  onSelectPosition?: (pos: THREE.Vector3) => void;
 }
 
 function BoneInstanced({
@@ -77,6 +78,7 @@ function BoneInstanced({
   loadDirX,
   loadDirY,
   loadDirZ,
+  onSelectPosition,
 }: BoneInstancedProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
@@ -157,6 +159,10 @@ function BoneInstanced({
       args={[geometry, undefined, struts.length]}
       castShadow
       receiveShadow
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onSelectPosition) onSelectPosition(e.point);
+      }}
     >
       <meshStandardMaterial
         color="#FFFFFF"
@@ -168,7 +174,7 @@ function BoneInstanced({
 }
 
 export function BoneModel() {
-  const { state, output } = useSimulation();
+  const { state, output, setParam } = useSimulation();
   const {
     showStress,
     showDeformation,
@@ -206,6 +212,11 @@ export function BoneModel() {
         loadDirX={loadDirX}
         loadDirY={loadDirY}
         loadDirZ={loadDirZ}
+        onSelectPosition={(pt) => {
+          setParam("loadPosX", parseFloat(pt.x.toFixed(2)));
+          setParam("loadPosY", parseFloat(pt.y.toFixed(2)));
+          setParam("loadPosZ", parseFloat(pt.z.toFixed(2)));
+        }}
       />
     </group>
   );

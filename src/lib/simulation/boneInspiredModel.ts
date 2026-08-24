@@ -1,8 +1,9 @@
 // ============================================================
-// boneInspiredModel.ts — Trabecular-inspired strut lattice
+// boneInspiredModel.ts — Compact trabecular-inspired strut lattice
 // ============================================================
 // Generates an ENGINEERED STRUCTURAL LATTICE inspired by
 // trabecular bone with omnidirectional 3D load responsiveness.
+// Scaled compactly to fit cleanly within the viewport.
 // ============================================================
 
 import type { StrutElement } from "./types";
@@ -140,16 +141,14 @@ export function computeBoneRelativeStiffness(
 }
 
 /**
- * Returns the exact 3D bounding box of the bone model.
+ * Returns the exact compact 3D bounding box of the bone model.
  */
 export function getBoneModelBounds(
   cellSizeMm: number,
   cellCount: number
 ): { minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number } {
-  const gridN = clamp(Math.round(cellCount), 2, 8);
-  const span = clamp(cellSizeMm, 5, 50) / 10;
-  const totalSpan = gridN * span;
-  const half = totalSpan / 2;
+  const targetTotalSpan = 3.2; // Compact viewport-friendly dimension
+  const half = targetTotalSpan / 2; // 1.6 units
   return {
     minX: -half,
     maxX: half,
@@ -163,10 +162,10 @@ export function getBoneModelBounds(
 // ─── Strut network generation ─────────────────────────────────
 
 /**
- * Generate the bone-inspired strut network with omnidirectional 3D localized load influence.
+ * Generate the bone-inspired strut network with compact viewport bounds.
  *
- * @param cellSizeMm      Cell characteristic length in mm
- * @param cellCount       Approx number of cells across one axis
+ * @param cellSizeMm      Cell characteristic length in mm (used for scaling density)
+ * @param cellCount       Number of cells across one axis
  * @param F               Applied load in N
  * @param orientationDeg  Primary orientation angle in degrees
  * @param rho_base        Base relative density
@@ -194,17 +193,20 @@ export function generateStrutNetwork(
 ): StrutElement[] {
   const rand = seededRandom(seed);
 
-  const gridN = clamp(Math.round(cellCount), 2, 8);
-  const span = clamp(cellSizeMm, 5, 50) / 10; // mm → scene units
-  const totalSpan = gridN * span;
+  const gridN = clamp(Math.round(cellCount), 2, 7);
+  // Compact scaling: total span fixed at 3.2 units so bone structure is cleanly proportioned
+  const totalSpan = 3.2;
+  const span = totalSpan / gridN;
   const half = totalSpan / 2;
 
   const F_norm = computeNormalizedLoad(F);
-  const r_base = clamp(span * 0.12, 0.04, 0.4);
+  // Base strut radius scaled with cell size parameter
+  const sizeRatio = clamp(cellSizeMm, 8, 40) / 20;
+  const r_base = clamp(span * 0.12 * sizeRatio, 0.035, 0.16);
 
   // ─── Generate nodes ───────────────────────────────────────
   const nodes: [number, number, number][] = [];
-  const jitterScale = span * 0.35;
+  const jitterScale = span * 0.32;
 
   for (let ix = 0; ix <= gridN; ix++) {
     for (let iy = 0; iy <= gridN; iy++) {
@@ -224,7 +226,7 @@ export function generateStrutNetwork(
   }
 
   // ─── Connect nearby node pairs ────────────────────────────
-  const cutoff = span * 1.8;
+  const cutoff = span * 1.75;
   const struts: StrutElement[] = [];
   let id = 0;
 

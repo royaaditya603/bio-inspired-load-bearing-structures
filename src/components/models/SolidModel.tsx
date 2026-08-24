@@ -3,7 +3,7 @@
 // ============================================================
 // SolidModel.tsx — Staggered Brick Masonry Structure
 // Features omnidirectional deformation, Green->Yellow->Red stress colors,
-// and the Easter Egg explosion when load exceeds 2000 N near centre!
+// cursor raycasting, and the Easter Egg explosion!
 // ============================================================
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
@@ -14,7 +14,6 @@ import { useSimulation } from "@/components/simulation/SimulationContext";
 import { clamp } from "@/lib/simulation/normalize";
 import {
   compute3DLoadSpatialInfluence,
-  computeNormalizedLoad,
 } from "@/lib/simulation/loadModel";
 import { computeOmnidirectionalDeformationVector } from "@/lib/simulation/deformationModel";
 import { demandToStressRGB } from "@/lib/simulation/stressModel";
@@ -55,7 +54,6 @@ function generateBricks(): BrickData[] {
           const x = xIdx * (brickWidth + mortarGap);
           const pos = new THREE.Vector3(x, y, z);
           const dir = pos.clone().normalize();
-          // Add outward radial variation
           dir.x += (Math.sin(id * 1.7) - 0.5) * 0.4;
           dir.y += 0.3 + Math.abs(Math.cos(id * 2.3)) * 0.6; // upward initial impulse
           dir.z += (Math.cos(id * 1.3) - 0.5) * 0.4;
@@ -119,7 +117,7 @@ function generateBricks(): BrickData[] {
 }
 
 export function SolidModel() {
-  const { state, output } = useSimulation();
+  const { state, output, setParam } = useSimulation();
   const {
     loadN,
     loadPosX,
@@ -184,8 +182,6 @@ export function SolidModel() {
         const b = bricks[i];
         if (!b) continue;
 
-        // Kinematic trajectory with gravity & damping:
-        // p(t) = p0 + v * t_damped + 0.5 * g * t^2
         const progressT = Math.min(t, 2.5);
         const curX = b.initialPos[0] + b.velocity.x * progressT * damping;
         const curY = Math.max(
@@ -196,7 +192,6 @@ export function SolidModel() {
 
         mesh.position.set(curX, curY, curZ);
 
-        // Tumbling rotation
         const angle = b.rotSpeed * progressT * damping;
         mesh.quaternion.setFromAxisAngle(b.rotAxis, angle);
       }
@@ -209,7 +204,15 @@ export function SolidModel() {
   return (
     <group>
       {/* ── Brick masonry meshes ────────────────────────────── */}
-      <group ref={brickGroupRef}>
+      <group
+        ref={brickGroupRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          setParam("loadPosX", parseFloat(e.point.x.toFixed(2)));
+          setParam("loadPosY", parseFloat(e.point.y.toFixed(2)));
+          setParam("loadPosZ", parseFloat(e.point.z.toFixed(2)));
+        }}
+      >
         {bricks.map((b) => {
           const [bx, by, bz] = b.initialPos;
 
