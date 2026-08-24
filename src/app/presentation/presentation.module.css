@@ -75,10 +75,27 @@
   font-family: "Times New Roman", Times, serif;
 }
 
+/* Canva Presentation Card */
+.canvaCard {
+  border-top: 4px solid #F8E7A6;
+  background: #FFFFFF;
+  border-left: 1px solid #D7E2EA;
+  border-right: 1px solid #D7E2EA;
+  border-bottom: 1px solid #D7E2EA;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(36, 52, 71, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.canvaCard:hover {
+  box-shadow: 0 8px 28px rgba(36, 52, 71, 0.09);
+}
+
 /* Slide Card */
 .slideCard {
   background: #FFFFFF;
   border: 1px solid #D7E2EA;
+  border-top: 4px solid #3A88C8;
   min-height: 520px;
   display: flex;
   flex-direction: column;

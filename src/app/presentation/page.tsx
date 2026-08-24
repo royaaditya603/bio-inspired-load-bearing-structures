@@ -258,6 +258,91 @@ export default function PresentationPage() {
           </p>
         </div>
         <div className={styles.topActions}>
+          <Link href="/simulator" className="btn btn-yellow btn-sm">
+            ▶ Open Simulator
+          </Link>
+          <Link href="/research" className="btn btn-outline btn-sm">
+            📚 View Literature
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Canva Presentation Embed ──────────────────────── */}
+      <div className={`card ${styles.canvaCard}`} style={{ marginBottom: "2.5rem", padding: "1.25rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span className="badge badge-yellow">★ Canva Deck</span>
+            <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#243447" }}>
+              Yellow and Brown Modern Honey Presentation
+            </span>
+          </div>
+          <span style={{ fontSize: "0.85rem", color: "#62748A" }}>
+            by <strong>Tanvi Bhamare</strong>
+          </span>
+        </div>
+
+        {/* Canva Embed Responsive Container */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: 0,
+            paddingTop: "56.25%",
+            paddingBottom: 0,
+            boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
+            marginTop: "0.8em",
+            marginBottom: "0.9em",
+            overflow: "hidden",
+            borderRadius: "8px",
+            willChange: "transform",
+          }}
+        >
+          <iframe
+            loading="lazy"
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              top: 0,
+              left: 0,
+              border: "none",
+              padding: 0,
+              margin: 0,
+            }}
+            src="https://www.canva.com/design/DAHQZNtPhSo/I79AXY-x_Ru8oaBKm-uQDg/view?embed"
+            allowFullScreen
+            allow="fullscreen"
+          />
+        </div>
+
+        <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "#62748A", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div>
+            <a
+              href="https://www.canva.com/design/DAHQZNtPhSo/I79AXY-x_Ru8oaBKm-uQDg/view?utm_content=DAHQZNtPhSo&utm_campaign=designshare&utm_medium=embeds&utm_source=link"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#3A88C8", fontWeight: 600 }}
+            >
+              ↗ Yellow and Brown Modern Honey Presentation
+            </a>{" "}
+            by Tanvi Bhamare
+          </div>
+          <span style={{ fontSize: "0.78rem", color: "#8C9BAE" }}>
+            Tip: Use the full-screen icon in Canva controls for presentation mode
+          </span>
+        </div>
+      </div>
+
+      {/* ── Slide Summary & Text Reference Section ───────── */}
+      <div className="section-title" style={{ marginTop: "2rem" }}>
+        <h2>Interactive Slide Outline &amp; Project Summary</h2>
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.75rem" }}>
+        <p style={{ color: "#62748A", fontSize: "0.92rem", margin: 0 }}>
+          Navigate through structured slides, summaries, and mathematical breakdowns below:
+        </p>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
           <button
             className="btn btn-outline btn-sm"
             onClick={() => setShowThumbnails(!showThumbnails)}
@@ -267,9 +352,6 @@ export default function PresentationPage() {
           <button className="btn btn-ghost btn-sm" onClick={toggleFullscreen}>
             {isFullscreen ? "Exit Fullscreen" : "⛶ Fullscreen (F)"}
           </button>
-          <Link href="/simulator" className="btn btn-yellow btn-sm">
-            ▶ Open Simulator
-          </Link>
         </div>
       </div>
 
