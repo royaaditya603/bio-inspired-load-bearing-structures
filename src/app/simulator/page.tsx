@@ -30,6 +30,13 @@ function SimulatorContent() {
             <span>Exaggerated deformation for visualization</span>
             <span className={styles.dot}>·</span>
             <span>Relative / Conceptual Stress Index</span>
+            <span className={styles.dot}>·</span>
+            <a
+              href="/comparison"
+              style={{ color: "#3A88C8", fontWeight: 700, textDecoration: "none" }}
+            >
+              ▲ ■ ● ⬡ Geometry Comparison →
+            </a>
           </div>
         </div>
 
