@@ -13,6 +13,9 @@ import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from "@react-three/dr
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
+import { TriangleModel } from "./TriangleModel";
+import { SquareModel } from "./SquareModel";
+import { CircleModel } from "./CircleModel";
 import { HoneycombModel } from "./HoneycombModel";
 import { BoneModel } from "./BoneModel";
 import { SolidModel } from "./SolidModel";
@@ -165,6 +168,9 @@ function SceneContent({
         onPointerOut={handlePointerOut}
         onClick={handleClick}
       >
+        {modelType === "triangle" && <TriangleModel />}
+        {modelType === "square" && <SquareModel />}
+        {modelType === "circle" && <CircleModel />}
         {modelType === "honeycomb" && <HoneycombModel />}
         {modelType === "bone" && <BoneModel />}
         {modelType === "solid" && <SolidModel />}

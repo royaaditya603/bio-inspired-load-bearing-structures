@@ -2,7 +2,8 @@
 
 // ============================================================
 // SimulatorPanel.tsx — All simulation controls wired to context
-// Includes Omnidirectional 3D Load (Position & Direction) and Green->Yellow->Red Stress Scale
+// Supports 6 Selectable 3D Models:
+// 1. Triangle | 2. Square | 3. Circle | 4. Hexagon | 5. Bone | 6. Solid Brick
 // ============================================================
 
 import React, { useMemo } from "react";
@@ -27,9 +28,12 @@ import { computeNormalizedLoadDirection } from "@/lib/simulation/loadModel";
 import styles from "./SimulatorPanel.module.css";
 
 const MODEL_OPTIONS: { value: ModelType; label: string; icon: string }[] = [
-  { value: "solid", label: "Solid (Brick)", icon: "▪" },
-  { value: "honeycomb", label: "Honeycomb", icon: "⬡" },
-  { value: "bone", label: "Bone-Inspired", icon: "⁜" },
+  { value: "triangle", label: "Triangle", icon: "▲" },
+  { value: "square", label: "Square", icon: "■" },
+  { value: "circle", label: "Circle", icon: "●" },
+  { value: "honeycomb", label: "Hexagon", icon: "⬡" },
+  { value: "bone", label: "Bone", icon: "⁜" },
+  { value: "solid", label: "Solid Brick", icon: "▪" },
 ];
 
 export function SimulatorPanel() {
@@ -39,6 +43,10 @@ export function SimulatorPanel() {
   const isBone = state.modelType === "bone";
   const isHoneycomb = state.modelType === "honeycomb";
   const isSolid = state.modelType === "solid";
+  const isTriangle = state.modelType === "triangle";
+  const isSquare = state.modelType === "square";
+  const isCircle = state.modelType === "circle";
+  const isCellular = !isSolid && !isBone;
 
   const [ndx, ndy, ndz] = useMemo(
     () =>
@@ -52,7 +60,7 @@ export function SimulatorPanel() {
 
   return (
     <aside className={styles.panel}>
-      {/* ── Model selector ────────────────────────────────── */}
+      {/* ── Model selector (All 6 Models) ─────────────────── */}
       <section className={styles.section}>
         <div className={styles.sectionTitle}>
           <span className={styles.sectionIcon}>⚙</span>
@@ -196,14 +204,15 @@ export function SimulatorPanel() {
         {output.isFailed && (
           <div className={styles.failureBanner}>
             <div style={{ fontWeight: 800 }}>
-              {isSolid && "⚠ STRUCTURAL FAILURE"}
-              {isHoneycomb && "⚠ HIGH STRESS EXCEEDED"}
-              {isBone && "⚠ HIGH DEMAND REGIME"}
+              {isSolid && "⚠ STRUCTURAL FAILURE: MASONRY COLLAPSED"}
+              {isTriangle && "⚠ STRUCTURAL FAILURE: TRIANGULAR LATTICE FRACTURED"}
+              {isSquare && "⚠ STRUCTURAL FAILURE: SQUARE LATTICE COLLAPSED"}
+              {isCircle && "⚠ STRUCTURAL FAILURE: RADIAL MATRIX FRACTURED"}
+              {isHoneycomb && "⚠ STRUCTURAL FAILURE: HONEYCOMB CRUSHED"}
+              {isBone && "⚠ STRUCTURAL FAILURE: BONE LATTICE YIELDED"}
             </div>
             <div style={{ fontSize: "0.76rem", marginTop: 2 }}>
-              {isSolid && `Masonry threshold (${output.failureThresholdN} N) exceeded.`}
-              {isHoneycomb && `Honeycomb threshold (${output.failureThresholdN} N) exceeded.`}
-              {isBone && `Bone lattice threshold (${output.failureThresholdN} N) exceeded.`}
+              Threshold ({output.failureThresholdN} N) exceeded under current loading regime.
             </div>
           </div>
         )}
@@ -236,7 +245,7 @@ export function SimulatorPanel() {
                 step={1}
                 onChange={(v) => setParam("cellCount", v)}
               />
-              {isHoneycomb && (
+              {(!isSolid && !isBone) && (
                 <SliderControl
                   label="Wall Thickness"
                   value={state.wallThicknessMm}
@@ -250,7 +259,7 @@ export function SimulatorPanel() {
             </>
           )}
 
-          {(isBone || isHoneycomb) && (
+          {(isBone || isCellular) && (
             <SliderControl
               label="Porosity"
               value={state.porosity}

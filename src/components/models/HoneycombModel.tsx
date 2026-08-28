@@ -2,11 +2,13 @@
 
 // ============================================================
 // HoneycombModel.tsx — Continuous 3D Honeycomb Structural Grid
-// Forms a seamless, connected honeycomb sandwich core with shared walls.
-// Supports Structure Inspection Mode with cutaway transparency.
+// Seamless hexagonal honeycomb core with omnidirectional deformation,
+// Green->Yellow->Red stress colors, inspection cutaway, and failure destruction physics!
 // ============================================================
 
-import React, { useMemo, useRef, useLayoutEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Text } from "@react-three/drei";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import {
@@ -17,8 +19,8 @@ import { computeDeformation, computeOmnidirectionalDeformationVector } from "@/l
 import { compute3DLoadSpatialInfluence } from "@/lib/simulation/loadModel";
 import { demandToStressRGB } from "@/lib/simulation/stressModel";
 import { clamp } from "@/lib/simulation/normalize";
+import { THRESHOLD_HONEYCOMB_N } from "@/lib/simulation/constants";
 
-// ── Stress-to-colour mapping: Green (#4CAF50) -> Yellow (#F2C94C) -> Red (#E05252) ──
 function stressToColor(demand: number): THREE.Color {
   const [r, g, b] = demandToStressRGB(demand);
   const color = new THREE.Color();
@@ -28,7 +30,6 @@ function stressToColor(demand: number): THREE.Color {
 
 const DEFAULT_STRUCTURAL_COLOR = new THREE.Color("#A9D8F5");
 
-// ── Continuous Hexagonal Prism with Shared Wall Outer Boundary ──
 function createContinuousHexPrismGeometry(
   R: number,
   height: number,
@@ -49,7 +50,6 @@ function createContinuousHexPrismGeometry(
   }
   shape.closePath();
 
-  // Inner hollow void
   const hole = new THREE.Path();
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 6;
@@ -74,7 +74,7 @@ function createContinuousHexPrismGeometry(
 }
 
 export function HoneycombModel() {
-  const { state, setParam } = useSimulation();
+  const { state, output, setParam } = useSimulation();
   const {
     loadN,
     loadPosX,
@@ -94,8 +94,19 @@ export function HoneycombModel() {
   } = state;
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const burstRef = useRef<THREE.Mesh>(null);
 
-  // ── Generate cell data with continuous 3D grid layout ─────
+  const isFailed = loadN >= THRESHOLD_HONEYCOMB_N;
+  const [animTime, setAnimTime] = useState(0);
+  const animTimeRef = useRef(0);
+
+  useEffect(() => {
+    if (!isFailed) {
+      animTimeRef.current = 0;
+      setAnimTime(0);
+    }
+  }, [isFailed, loadN]);
+
   const cells = useMemo(
     () =>
       generateHoneycombCells(
@@ -124,7 +135,6 @@ export function HoneycombModel() {
     ]
   );
 
-  // ── Continuous shared-wall geometry ───────────────────────
   const { geometry } = useMemo(() => {
     const gridRadius = clamp(Math.round(cellCount), 1, 6);
     const totalBlockSpan = 3.4;
@@ -134,18 +144,80 @@ export function HoneycombModel() {
     return { geometry: geo };
   }, [cellSizeMm, wallThicknessMm, cellCount]);
 
-  // ── Global deformation for animation ──────────────────────
   const rho = computeHoneycombRelativeDensity(wallThicknessMm, cellSizeMm);
   const globalDeform = computeDeformation(loadN, rho, deformationScale, 0.85);
 
-  // ── Build instance matrices and colours ───────────────────
+  const explosionData = useMemo(() => {
+    return cells.map((cell, idx) => {
+      const pos = new THREE.Vector3(cell.centerX, cell.centerY, cell.centerZ);
+      const dir = pos.clone().normalize();
+      dir.x += (Math.sin(idx * 1.7) - 0.5) * 0.4;
+      dir.y += 0.4 + Math.abs(Math.cos(idx * 2.3)) * 0.6;
+      dir.z += (Math.cos(idx * 1.3) - 0.5) * 0.4;
+      dir.normalize();
+      return {
+        velocity: dir.multiplyScalar(2.4 + (idx % 4) * 0.5),
+        rotAxis: new THREE.Vector3(Math.sin(idx * 2.2), Math.cos(idx * 1.8), Math.sin(idx * 3.4)).normalize(),
+        rotSpeed: 1.7 + (idx % 3) * 1.1,
+      };
+    });
+  }, [cells]);
+
+  useFrame((_, delta) => {
+    if (!isFailed) return;
+
+    if (animTimeRef.current < 3.5) {
+      animTimeRef.current += delta;
+      setAnimTime(animTimeRef.current);
+    }
+
+    const t = Math.min(animTimeRef.current, 3.5);
+    const gravity = -4.5;
+    const damping = Math.exp(-t * 0.75);
+
+    if (burstRef.current) {
+      const burstScale = 1.0 + t * 4.5;
+      burstRef.current.scale.set(burstScale, burstScale, burstScale);
+      const burstMat = burstRef.current.material as THREE.MeshBasicMaterial;
+      if (burstMat) {
+        burstMat.opacity = Math.max(0, 0.8 - t * 0.7);
+      }
+    }
+
+    const mesh = meshRef.current;
+    if (mesh) {
+      const dummy = new THREE.Object3D();
+      for (let i = 0; i < cells.length; i++) {
+        const cell = cells[i];
+        const exp = explosionData[i];
+        if (!cell || !exp) continue;
+
+        const progressT = Math.min(t, 2.5);
+        const curX = cell.centerX + exp.velocity.x * progressT * damping;
+        const curY = Math.max(
+          -3.2,
+          cell.centerY + exp.velocity.y * progressT + 0.5 * gravity * progressT * progressT
+        );
+        const curZ = cell.centerZ + exp.velocity.z * progressT * damping;
+
+        dummy.position.set(curX, curY, curZ);
+        dummy.rotation.set(Math.PI / 2, 0, 0);
+        const angle = exp.rotSpeed * progressT * damping;
+        dummy.rotateOnAxis(exp.rotAxis, angle);
+        dummy.scale.setScalar(1);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+  });
+
   const { matrices, colors } = useMemo(() => {
     const matrices: THREE.Matrix4[] = [];
     const colors: THREE.Color[] = [];
     const dummy = new THREE.Object3D();
 
     for (const cell of cells) {
-      // 3D Gaussian spatial proximity to (loadPosX, loadPosY, loadPosZ)
       const spatialFactor = compute3DLoadSpatialInfluence(
         cell.centerX,
         cell.centerY,
@@ -155,9 +227,8 @@ export function HoneycombModel() {
         loadPosZ
       );
 
-      // 3D Omnidirectional deformation displacement vector
       let [vx, vy, vz] = [0, 0, 0];
-      if (showDeformation) {
+      if (showDeformation && !isFailed) {
         [vx, vy, vz] = computeOmnidirectionalDeformationVector(
           globalDeform,
           cell.demand,
@@ -169,7 +240,7 @@ export function HoneycombModel() {
       }
 
       dummy.position.set(cell.centerX + vx, cell.centerY + vy, cell.centerZ + vz);
-      dummy.rotation.set(Math.PI / 2, 0, 0); // lay hex flat on X-Z plane
+      dummy.rotation.set(Math.PI / 2, 0, 0);
       dummy.scale.setScalar(1);
       dummy.updateMatrix();
       matrices.push(dummy.matrix.clone());
@@ -191,19 +262,19 @@ export function HoneycombModel() {
     loadDirX,
     loadDirY,
     loadDirZ,
+    isFailed,
   ]);
 
-  // ── Apply matrices & colours to InstancedMesh ─────────────
   useLayoutEffect(() => {
     const mesh = meshRef.current;
-    if (!mesh) return;
+    if (!mesh || isFailed) return;
     for (let i = 0; i < matrices.length; i++) {
       mesh.setMatrixAt(i, matrices[i]);
       mesh.setColorAt(i, colors[i]);
     }
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [matrices, colors]);
+  }, [matrices, colors, isFailed]);
 
   if (cells.length === 0) return null;
 
@@ -227,10 +298,27 @@ export function HoneycombModel() {
           metalness={0.05}
           side={THREE.DoubleSide}
           transparent={inspectionMode}
-          opacity={inspectionMode ? (cutawayOpacity ?? 0.4) : 1.0}
-          wireframe={false}
+          opacity={inspectionMode ? (cutawayOpacity ?? 0.35) : 1.0}
         />
       </instancedMesh>
+
+      {isFailed && animTime < 2.5 && (
+        <mesh ref={burstRef} position={[loadPosX, 0.5, loadPosZ]}>
+          <sphereGeometry args={[1.2, 24, 24]} />
+          <meshBasicMaterial color="#E05252" transparent opacity={0.7} wireframe />
+        </mesh>
+      )}
+
+      {isFailed && (
+        <group position={[0, 4.0, 0]}>
+          <Text position={[0, 0, 0]} fontSize={0.34} color="#E05252" anchorX="center" anchorY="middle">
+            ⚠ STRUCTURAL FAILURE: HONEYCOMB CRUSHED
+          </Text>
+          <Text position={[0, -0.4, 0]} fontSize={0.22} color="#62748A" anchorX="center" anchorY="middle">
+            {`(Honeycomb threshold: ${THRESHOLD_HONEYCOMB_N} N exceeded)`}
+          </Text>
+        </group>
+      )}
     </group>
   );
 }

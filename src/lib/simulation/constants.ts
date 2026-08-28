@@ -8,7 +8,10 @@ import type { MaterialProperties, SimulationState } from "./types";
 // SOLID < HONEYCOMB < BONE-INSPIRED
 // Conceptual simulation assumptions only (not universal material limits)
 export const THRESHOLD_SOLID_N = 2000;
+export const THRESHOLD_SQUARE_N = 3200;
+export const THRESHOLD_CIRCLE_N = 3400;
 export const THRESHOLD_HONEYCOMB_N = 3500;
+export const THRESHOLD_TRIANGLE_N = 3800;
 export const THRESHOLD_BONE_N = 4000;
 
 // ─── Load range ──────────────────────────────────────────────

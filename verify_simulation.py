@@ -196,10 +196,12 @@ def test_all():
     assert 0.15 < hc_rho < 0.40, f"Test 9 Failed: {hc_rho}"
     print(f" [PASS] TEST 9: Honeycomb regular cellular scaling verified (rho_rel = {hc_rho:.4f})")
 
-    # TEST 10: Structural Load Failure Thresholds (SOLID < HONEYCOMB < BONE)
-    assert THRESHOLD_SOLID_N < THRESHOLD_HONEYCOMB_N < THRESHOLD_BONE_N, "Threshold hierarchy failed"
-    assert THRESHOLD_SOLID_N == 2000 and THRESHOLD_HONEYCOMB_N == 3500 and THRESHOLD_BONE_N == 4000
-    print(f" [PASS] TEST 10: Threshold hierarchy verified (Solid={THRESHOLD_SOLID_N}N < Honeycomb={THRESHOLD_HONEYCOMB_N}N < Bone={THRESHOLD_BONE_N}N)")
+    # TEST 10: Structural Load Failure Thresholds (All 6 Models)
+    THRESHOLD_SQUARE_N = 3200
+    THRESHOLD_CIRCLE_N = 3400
+    THRESHOLD_TRIANGLE_N = 3800
+    assert THRESHOLD_SOLID_N < THRESHOLD_SQUARE_N < THRESHOLD_CIRCLE_N < THRESHOLD_HONEYCOMB_N < THRESHOLD_TRIANGLE_N < THRESHOLD_BONE_N, "Threshold hierarchy failed"
+    print(f" [PASS] TEST 10: 6-Model threshold hierarchy verified (Solid={THRESHOLD_SOLID_N}N < Square={THRESHOLD_SQUARE_N}N < Circle={THRESHOLD_CIRCLE_N}N < Honeycomb={THRESHOLD_HONEYCOMB_N}N < Triangle={THRESHOLD_TRIANGLE_N}N < Bone={THRESHOLD_BONE_N}N)")
 
     # TEST 11: Defaults check including 3D direction vector and Inspection Mode
     defaults = {

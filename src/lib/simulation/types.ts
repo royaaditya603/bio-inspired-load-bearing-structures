@@ -2,7 +2,7 @@
 // types.ts — Shared interfaces for the bio-inspired simulation
 // ============================================================
 
-export type ModelType = "solid" | "honeycomb" | "bone";
+export type ModelType = "triangle" | "square" | "circle" | "honeycomb" | "bone" | "solid";
 
 /** Central simulation state — single source of truth */
 export interface SimulationState {

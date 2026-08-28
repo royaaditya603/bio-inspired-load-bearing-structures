@@ -1,25 +1,34 @@
 "use client";
 
 // ============================================================
-// SimulationContext.tsx — Centralized simulation state
+// SimulationContext.tsx — React Context for global simulation state
+// Supports Triangle, Square, Circle, Honeycomb, Bone, and Solid models.
 // ============================================================
 
 import React, {
   createContext,
   useContext,
   useReducer,
-  useCallback,
   useMemo,
+  useCallback,
   ReactNode,
 } from "react";
-import type { SimulationState, SimulationOutput } from "@/lib/simulation/types";
+import type {
+  SimulationState,
+  SimulationOutput,
+  ModelType,
+} from "@/lib/simulation/types";
 import {
   DEFAULT_STATE,
   PRESETS,
-  MAX_OPT_ITERATIONS,
   THRESHOLD_SOLID_N,
+  THRESHOLD_SQUARE_N,
+  THRESHOLD_CIRCLE_N,
   THRESHOLD_HONEYCOMB_N,
+  THRESHOLD_TRIANGLE_N,
   THRESHOLD_BONE_N,
+  MATERIAL_PA12,
+  MAX_OPT_ITERATIONS,
 } from "@/lib/simulation/constants";
 import { clamp, safeNumber } from "@/lib/simulation/normalize";
 import { computeStressIndex, computeRelativeStiffness } from "@/lib/simulation/stressModel";
@@ -27,8 +36,8 @@ import { computeDeformation } from "@/lib/simulation/deformationModel";
 import {
   computeHoneycombRelativeDensity,
   computeHoneycombPorosity,
-  generateHoneycombCells,
   computeHoneycombSolidVolume,
+  generateHoneycombCells,
 } from "@/lib/simulation/honeycombModel";
 import {
   generateStrutNetwork,
@@ -39,15 +48,14 @@ import {
 } from "@/lib/simulation/boneInspiredModel";
 import { runOptimization } from "@/lib/simulation/optimization";
 import { estimateMassGrams } from "@/lib/simulation/materialModel";
-import { MATERIAL_PA12 } from "@/lib/simulation/constants";
+import { computeCellGeometryComparison } from "@/lib/simulation/cellGeometryModel";
 
-// ─── State ───────────────────────────────────────────────────
+// ─── Actions ─────────────────────────────────────────────────
 
 type Action =
   | { type: "SET_PARAM"; key: keyof SimulationState; value: number | boolean | string }
   | { type: "RESET" }
   | { type: "APPLY_PRESET"; preset: keyof typeof PRESETS }
-  | { type: "RUN_OPTIMIZATION" }
   | { type: "SET_OPTIMIZATION_ITERATION"; iteration: number };
 
 function reducer(state: SimulationState, action: Action): SimulationState {
@@ -56,25 +64,20 @@ function reducer(state: SimulationState, action: Action): SimulationState {
       return { ...state, [action.key]: action.value };
     case "RESET":
       return { ...DEFAULT_STATE };
-    case "APPLY_PRESET": {
-      const preset = PRESETS[action.preset];
-      return { ...state, ...preset, optimizationIteration: 0, optimizationRunning: false };
-    }
-    case "RUN_OPTIMIZATION":
-      return { ...state, optimizationRunning: true };
+    case "APPLY_PRESET":
+      return { ...state, ...PRESETS[action.preset], optimizationIteration: 0 };
     case "SET_OPTIMIZATION_ITERATION":
-      return { ...state, optimizationIteration: action.iteration, optimizationRunning: false };
+      return { ...state, optimizationIteration: action.iteration };
     default:
       return state;
   }
 }
 
-// ─── Context interface ────────────────────────────────────────
+// ─── Context shape ───────────────────────────────────────────
 
 interface SimulationContextValue {
   state: SimulationState;
   output: SimulationOutput;
-  dispatch: React.Dispatch<Action>;
   setParam: (key: keyof SimulationState, value: number | boolean | string) => void;
   reset: () => void;
   applyPreset: (preset: keyof typeof PRESETS) => void;
@@ -88,7 +91,7 @@ const SimulationContext = createContext<SimulationContextValue | null>(null);
 export function SimulationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, DEFAULT_STATE);
 
-  // ── Compute simulation output ────────────────────────────
+  // ── Compute simulation output across all 6 model topologies ──
   const output = useMemo((): SimulationOutput => {
     const {
       loadN,
@@ -109,6 +112,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     } = state;
     const rho_base = clamp(relativeDensity, 0.15, 0.75);
 
+    // 1. SOLID BRICK
     if (modelType === "solid") {
       const rho = 1.0;
       const stressIndex = computeStressIndex(loadN, rho, 1.0);
@@ -129,6 +133,82 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       };
     }
 
+    // 2. TRIANGLE (Isogrid)
+    if (modelType === "triangle") {
+      const geoResults = computeCellGeometryComparison(
+        loadN,
+        loadDirX,
+        loadDirY,
+        loadDirZ,
+        wallThicknessMm,
+        cellSizeMm
+      );
+      const tri = geoResults.find((r) => r.shape === "triangle")!;
+      return {
+        stressIndex: tri.stressIndex,
+        deformation: tri.deformation * deformationScale,
+        relativeDensity: tri.relativeDensity,
+        porosity: tri.porosity,
+        materialFraction: tri.relativeDensity,
+        estimatedMassG: tri.estimatedMassG,
+        effectiveStiffness: tri.effectiveStiffness,
+        failureThresholdN: THRESHOLD_TRIANGLE_N,
+        isFailed: loadN >= THRESHOLD_TRIANGLE_N,
+        optimizationIteration: 0,
+      };
+    }
+
+    // 3. SQUARE (Orthogrid)
+    if (modelType === "square") {
+      const geoResults = computeCellGeometryComparison(
+        loadN,
+        loadDirX,
+        loadDirY,
+        loadDirZ,
+        wallThicknessMm,
+        cellSizeMm
+      );
+      const sq = geoResults.find((r) => r.shape === "square")!;
+      return {
+        stressIndex: sq.stressIndex,
+        deformation: sq.deformation * deformationScale,
+        relativeDensity: sq.relativeDensity,
+        porosity: sq.porosity,
+        materialFraction: sq.relativeDensity,
+        estimatedMassG: sq.estimatedMassG,
+        effectiveStiffness: sq.effectiveStiffness,
+        failureThresholdN: THRESHOLD_SQUARE_N,
+        isFailed: loadN >= THRESHOLD_SQUARE_N,
+        optimizationIteration: 0,
+      };
+    }
+
+    // 4. CIRCLE (Radial Voids Matrix)
+    if (modelType === "circle") {
+      const geoResults = computeCellGeometryComparison(
+        loadN,
+        loadDirX,
+        loadDirY,
+        loadDirZ,
+        wallThicknessMm,
+        cellSizeMm
+      );
+      const circ = geoResults.find((r) => r.shape === "circle")!;
+      return {
+        stressIndex: circ.stressIndex,
+        deformation: circ.deformation * deformationScale,
+        relativeDensity: circ.relativeDensity,
+        porosity: circ.porosity,
+        materialFraction: circ.relativeDensity,
+        estimatedMassG: circ.estimatedMassG,
+        effectiveStiffness: circ.effectiveStiffness,
+        failureThresholdN: THRESHOLD_CIRCLE_N,
+        isFailed: loadN >= THRESHOLD_CIRCLE_N,
+        optimizationIteration: 0,
+      };
+    }
+
+    // 5. HONEYCOMB (Hexagonal Core)
     if (modelType === "honeycomb") {
       const rho = computeHoneycombRelativeDensity(wallThicknessMm, cellSizeMm);
       const porosity = computeHoneycombPorosity(rho);
@@ -165,7 +245,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    // bone
+    // 6. BONE-INSPIRED LATTICE
     const span = clamp(cellSizeMm, 5, 50) / 10;
     const gridN = clamp(Math.round(cellCount), 2, 8);
     const half = (gridN * span) / 2;
@@ -238,20 +318,26 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_OPTIMIZATION_ITERATION", iteration: nextIter });
   }, [state.optimizationIteration]);
 
-  const value = useMemo(
-    () => ({ state, output, dispatch, setParam, reset, applyPreset, runOptimization: runOpt }),
-    [state, output, dispatch, setParam, reset, applyPreset, runOpt]
-  );
-
   return (
-    <SimulationContext.Provider value={value}>
+    <SimulationContext.Provider
+      value={{
+        state,
+        output,
+        setParam,
+        reset,
+        applyPreset,
+        runOptimization: runOpt,
+      }}
+    >
       {children}
     </SimulationContext.Provider>
   );
 }
 
-export function useSimulation(): SimulationContextValue {
-  const ctx = useContext(SimulationContext);
-  if (!ctx) throw new Error("useSimulation must be used within SimulationProvider");
-  return ctx;
+export function useSimulation() {
+  const context = useContext(SimulationContext);
+  if (!context) {
+    throw new Error("useSimulation must be used within a SimulationProvider");
+  }
+  return context;
 }

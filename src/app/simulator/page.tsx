@@ -22,9 +22,12 @@ function SimulatorContent() {
       <div className={styles.viewport}>
         <div className={styles.viewportHeader}>
           <div className={styles.modelBadge}>
-            {state.modelType === "solid" && "▪ Solid Baseline (Monolithic)"}
+            {state.modelType === "triangle" && "▲ Triangular Grid (Isogrid)"}
+            {state.modelType === "square" && "■ Square Grid (Orthogrid)"}
+            {state.modelType === "circle" && "● Circular Grid (Porous Matrix)"}
             {state.modelType === "honeycomb" && "⬡ Honeycomb Structure (Periodic)"}
             {state.modelType === "bone" && "⁜ Bone-Inspired Lattice (Anisotropic)"}
+            {state.modelType === "solid" && "▪ Solid Baseline (Monolithic)"}
           </div>
           <div className={styles.viewportNote}>
             <span>Exaggerated deformation for visualization</span>
