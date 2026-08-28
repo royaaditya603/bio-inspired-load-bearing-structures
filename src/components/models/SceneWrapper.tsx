@@ -3,12 +3,14 @@
 // ============================================================
 // SceneWrapper.tsx — React Three Fiber Canvas wrapper
 // High-visibility pastel scientific engineering viewport with
-// direct cursor raycasting and click-to-place load interaction
+// direct cursor raycasting, Structure Inspection Mode, deep dolly zoom,
+// and Reset Camera View controls.
 // ============================================================
 
-import React, { Suspense, useState, useCallback } from "react";
+import React, { Suspense, useState, useCallback, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { useSimulation } from "@/components/simulation/SimulationContext";
 import { HoneycombModel } from "./HoneycombModel";
@@ -19,7 +21,7 @@ import { LoadArrow } from "./LoadArrow";
 function SceneLighting() {
   return (
     <>
-      <ambientLight intensity={1.3} color="#FFFFFF" />
+      <ambientLight intensity={1.35} color="#FFFFFF" />
       <hemisphereLight
         args={["#FFFFFF", "#DCEFFA", 1.2]}
         position={[0, 20, 0]}
@@ -39,7 +41,7 @@ function SceneLighting() {
       />
       <directionalLight
         position={[0, 4, 12]}
-        intensity={0.7}
+        intensity={0.75}
         color="#FFFFFF"
       />
       <directionalLight
@@ -92,7 +94,11 @@ function CursorHoverPreview({ hoverPoint }: { hoverPoint: THREE.Vector3 | null }
   );
 }
 
-function SceneContent() {
+function SceneContent({
+  controlsRef,
+}: {
+  controlsRef: React.MutableRefObject<OrbitControlsImpl | null>;
+}) {
   const { state, setParam } = useSimulation();
   const {
     modelType,
@@ -164,10 +170,12 @@ function SceneContent() {
         {modelType === "solid" && <SolidModel />}
       </group>
 
+      {/* OrbitControls with deep dolly zoom into internal cellular core */}
       <OrbitControls
+        ref={controlsRef}
         makeDefault
-        minDistance={3}
-        maxDistance={25}
+        minDistance={0.15}
+        maxDistance={32}
         dampingFactor={0.08}
         enableDamping
       />
@@ -187,6 +195,18 @@ interface SceneWrapperProps {
 }
 
 export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
+  const { state, setParam } = useSimulation();
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
+
+  const resetCamera = useCallback(() => {
+    if (controlsRef.current) {
+      controlsRef.current.reset();
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.object.position.set(8, 6.5, 8);
+      controlsRef.current.update();
+    }
+  }, []);
+
   return (
     <div
       style={{
@@ -199,31 +219,108 @@ export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
         position: "relative",
       }}
     >
-      {/* Click-to-place helper prompt badge */}
+      {/* Viewport Top Helper / Control Overlay */}
       <div
         style={{
           position: "absolute",
           top: 14,
           left: 16,
           zIndex: 10,
-          background: "rgba(255, 255, 255, 0.9)",
-          backdropFilter: "blur(4px)",
-          border: "1px solid #D7E2EA",
-          borderRadius: 8,
-          padding: "0.35rem 0.75rem",
-          fontSize: "0.76rem",
-          color: "#1C4C74",
-          fontWeight: 600,
-          pointerEvents: "none",
-          fontFamily: '"Times New Roman", Times, serif',
-          boxShadow: "0 2px 8px rgba(36, 52, 71, 0.06)",
+          display: "flex",
+          gap: "0.5rem",
+          alignItems: "center",
+          flexWrap: "wrap",
         }}
       >
-        💡 Click on structure surface to place 3D load
+        <div
+          style={{
+            background: "rgba(255, 255, 255, 0.92)",
+            backdropFilter: "blur(6px)",
+            border: "1px solid #D7E2EA",
+            borderRadius: 8,
+            padding: "0.35rem 0.75rem",
+            fontSize: "0.76rem",
+            color: "#1C4C74",
+            fontWeight: 600,
+            pointerEvents: "none",
+            fontFamily: '"Times New Roman", Times, serif',
+            boxShadow: "0 2px 8px rgba(36, 52, 71, 0.06)",
+          }}
+        >
+          💡 Click model to place load · Scroll to inspect internal lattice
+        </div>
+
+        {/* Quick Inspection Mode Badge */}
+        {state.inspectionMode && (
+          <div
+            style={{
+              background: "#FFF5CF",
+              border: "1px solid #F5E5AD",
+              borderRadius: 8,
+              padding: "0.35rem 0.65rem",
+              fontSize: "0.74rem",
+              color: "#634B00",
+              fontWeight: 700,
+              fontFamily: '"Times New Roman", Times, serif',
+            }}
+          >
+            🔬 Internal Inspection / Cutaway Active
+          </div>
+        )}
+      </div>
+
+      {/* Floating Viewport Actions (Reset View & Inspection Toggle) */}
+      <div
+        style={{
+          position: "absolute",
+          top: 14,
+          right: 16,
+          zIndex: 10,
+          display: "flex",
+          gap: "0.4rem",
+        }}
+      >
+        <button
+          onClick={() => setParam("inspectionMode", !state.inspectionMode)}
+          className="btn btn-sm"
+          style={{
+            background: state.inspectionMode ? "#DCEFFA" : "rgba(255, 255, 255, 0.9)",
+            border: state.inspectionMode ? "1px solid #3A88C8" : "1px solid #D7E2EA",
+            color: state.inspectionMode ? "#1C4C74" : "#243447",
+            padding: "0.35rem 0.7rem",
+            fontSize: "0.76rem",
+            fontWeight: 700,
+            backdropFilter: "blur(4px)",
+            cursor: "pointer",
+            boxShadow: "0 2px 6px rgba(36, 52, 71, 0.06)",
+          }}
+          title="Toggle internal structure cutaway transparency"
+        >
+          {state.inspectionMode ? "🔬 Cutaway: ON" : "🔬 Inspection Cutaway"}
+        </button>
+
+        <button
+          onClick={resetCamera}
+          className="btn btn-outline btn-sm"
+          style={{
+            background: "rgba(255, 255, 255, 0.9)",
+            border: "1px solid #D7E2EA",
+            color: "#243447",
+            padding: "0.35rem 0.7rem",
+            fontSize: "0.76rem",
+            fontWeight: 600,
+            backdropFilter: "blur(4px)",
+            cursor: "pointer",
+            boxShadow: "0 2px 6px rgba(36, 52, 71, 0.06)",
+          }}
+          title="Reset 3D camera to default isometric position"
+        >
+          ↺ Reset View
+        </button>
       </div>
 
       <Canvas
-        camera={{ position: [8, 6.5, 8], fov: 38, near: 0.1, far: 200 }}
+        camera={{ position: [8, 6.5, 8], fov: 38, near: 0.01, far: 250 }}
         shadows
         dpr={[1, 2]}
         gl={{
@@ -233,7 +330,7 @@ export function SceneWrapper({ height = "100%" }: SceneWrapperProps) {
         }}
       >
         <Suspense fallback={null}>
-          <SceneContent />
+          <SceneContent controlsRef={controlsRef} />
         </Suspense>
       </Canvas>
     </div>

@@ -24,6 +24,8 @@ export interface SimulationState {
   showStress: boolean;
   showDeformation: boolean;
   showLoadArrows: boolean;
+  inspectionMode: boolean; // Structure inspection cutaway / internal visibility mode
+  cutawayOpacity: number;  // Opacity of outer surface in cutaway mode [0.1–0.9]
   optimizationRunning: boolean;
   optimizationIteration: number;
 }

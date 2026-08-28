@@ -3,6 +3,7 @@
 // ============================================================
 // HoneycombModel.tsx — Continuous 3D Honeycomb Structural Grid
 // Forms a seamless, connected honeycomb sandwich core with shared walls.
+// Supports Structure Inspection Mode with cutaway transparency.
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -35,7 +36,6 @@ function createContinuousHexPrismGeometry(
   cellSizeMm: number
 ): THREE.BufferGeometry {
   const outerR = R;
-  // Normalized wall thickness proportion
   const wtRatio = clamp(wallThicknessMm / cellSizeMm, 0.05, 0.45);
   const innerR = Math.max(outerR * (1 - wtRatio), outerR * 0.15);
 
@@ -89,6 +89,8 @@ export function HoneycombModel() {
     showStress,
     showDeformation,
     deformationScale,
+    inspectionMode,
+    cutawayOpacity,
   } = state;
 
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -224,6 +226,9 @@ export function HoneycombModel() {
           roughness={0.4}
           metalness={0.05}
           side={THREE.DoubleSide}
+          transparent={inspectionMode}
+          opacity={inspectionMode ? (cutawayOpacity ?? 0.4) : 1.0}
+          wireframe={false}
         />
       </instancedMesh>
     </group>

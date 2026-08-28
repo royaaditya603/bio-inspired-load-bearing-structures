@@ -325,7 +325,28 @@ export function SimulatorPanel() {
             checked={state.showLoadArrows}
             onChange={(v) => setParam("showLoadArrows", v)}
           />
+          <ToggleSwitch
+            label="Structure Inspection / Cutaway"
+            checked={state.inspectionMode}
+            onChange={(v) => setParam("inspectionMode", v)}
+          />
         </div>
+
+        {state.inspectionMode && (
+          <div style={{ marginTop: "0.85rem" }}>
+            <SliderControl
+              label="Cutaway Opacity"
+              value={state.cutawayOpacity ?? 0.35}
+              min={0.1}
+              max={0.8}
+              step={0.05}
+              onChange={(v) => setParam("cutawayOpacity", v)}
+            />
+            <p style={{ fontSize: "0.74rem", color: "#62748A", marginTop: "0.35rem", fontStyle: "italic" }}>
+              Outer surface faded to inspect internal cellular/lattice core.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* ── Optimization (bone only) ───────────────────────── */}

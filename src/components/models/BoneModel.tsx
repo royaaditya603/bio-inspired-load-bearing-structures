@@ -3,6 +3,7 @@
 // ============================================================
 // BoneModel.tsx — Compact trabecular-inspired strut lattice
 // Supports cursor raycasting, omnidirectional load & Green->Yellow->Red stress
+// Supports Structure Inspection Mode with cutaway internal visibility.
 // ============================================================
 
 import React, { useMemo, useRef, useLayoutEffect } from "react";
@@ -64,6 +65,8 @@ interface BoneInstancedProps {
   loadDirX: number;
   loadDirY: number;
   loadDirZ: number;
+  inspectionMode?: boolean;
+  cutawayOpacity?: number;
   onSelectPosition?: (pos: THREE.Vector3) => void;
 }
 
@@ -78,6 +81,8 @@ function BoneInstanced({
   loadDirX,
   loadDirY,
   loadDirZ,
+  inspectionMode = false,
+  cutawayOpacity = 0.35,
   onSelectPosition,
 }: BoneInstancedProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -168,6 +173,8 @@ function BoneInstanced({
         color="#FFFFFF"
         roughness={0.4}
         metalness={0.05}
+        transparent={inspectionMode}
+        opacity={inspectionMode ? (cutawayOpacity ?? 0.5) : 1.0}
       />
     </instancedMesh>
   );
@@ -185,6 +192,8 @@ export function BoneModel() {
     loadDirX,
     loadDirY,
     loadDirZ,
+    inspectionMode,
+    cutawayOpacity,
   } = state;
 
   const struts = output.struts ?? [];
@@ -212,6 +221,8 @@ export function BoneModel() {
         loadDirX={loadDirX}
         loadDirY={loadDirY}
         loadDirZ={loadDirZ}
+        inspectionMode={inspectionMode}
+        cutawayOpacity={cutawayOpacity}
         onSelectPosition={(pt) => {
           setParam("loadPosX", parseFloat(pt.x.toFixed(2)));
           setParam("loadPosY", parseFloat(pt.y.toFixed(2)));

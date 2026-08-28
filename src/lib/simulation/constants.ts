@@ -82,6 +82,8 @@ export const DEFAULT_STATE: SimulationState = {
   showStress: true,
   showDeformation: true,
   showLoadArrows: true,
+  inspectionMode: false,
+  cutawayOpacity: 0.35,
   optimizationRunning: false,
   optimizationIteration: 0,
 };

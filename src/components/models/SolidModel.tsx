@@ -3,7 +3,7 @@
 // ============================================================
 // SolidModel.tsx — Staggered Brick Masonry Structure
 // Features omnidirectional deformation, Green->Yellow->Red stress colors,
-// cursor raycasting, and the Easter Egg explosion!
+// cursor raycasting, Structure Inspection Mode, and the Easter Egg explosion!
 // ============================================================
 
 import React, { useMemo, useRef, useState, useEffect } from "react";
@@ -49,13 +49,12 @@ function generateBricks(): BrickData[] {
       const z = zIdx * (brickDepth + mortarGap);
 
       if (!isStaggered) {
-        // 4 standard bricks across X
         for (let xIdx = -1.5; xIdx <= 1.5; xIdx += 1.0) {
           const x = xIdx * (brickWidth + mortarGap);
           const pos = new THREE.Vector3(x, y, z);
           const dir = pos.clone().normalize();
           dir.x += (Math.sin(id * 1.7) - 0.5) * 0.4;
-          dir.y += 0.3 + Math.abs(Math.cos(id * 2.3)) * 0.6; // upward initial impulse
+          dir.y += 0.3 + Math.abs(Math.cos(id * 2.3)) * 0.6;
           dir.z += (Math.cos(id * 1.3) - 0.5) * 0.4;
           dir.normalize();
 
@@ -77,7 +76,6 @@ function generateBricks(): BrickData[] {
           });
         }
       } else {
-        // Staggered: 1 half brick + 3 full bricks + 1 half brick
         const halfWidth = (brickWidth - mortarGap) / 2;
         const xPositions = [-1.75, -0.98, 0, 0.98, 1.75];
         const widths = [halfWidth, brickWidth, brickWidth, brickWidth, halfWidth];
@@ -129,21 +127,20 @@ export function SolidModel() {
     showDeformation,
     showStress,
     deformationScale,
+    inspectionMode,
+    cutawayOpacity,
   } = state;
 
   const bricks = useMemo(() => generateBricks(), []);
   const brickGroupRef = useRef<THREE.Group>(null);
   const burstRef = useRef<THREE.Mesh>(null);
 
-  // Failure condition check:
-  // Load exceeds 2000 N AND load is placed near structure centre (|X| < 0.6, |Z| < 0.6)
   const isCenterLoad = Math.abs(loadPosX) < 0.6 && Math.abs(loadPosZ) < 0.6;
   const isExploded = loadN >= THRESHOLD_SOLID_N && isCenterLoad;
 
   const [animTime, setAnimTime] = useState(0);
   const animTimeRef = useRef(0);
 
-  // Reset animation time when explosion condition toggles
   useEffect(() => {
     if (!isExploded) {
       animTimeRef.current = 0;
@@ -151,7 +148,6 @@ export function SolidModel() {
     }
   }, [isExploded, loadN]);
 
-  // Animation loop for brick explosion physics
   useFrame((_, delta) => {
     if (!isExploded) return;
 
@@ -164,7 +160,6 @@ export function SolidModel() {
     const gravity = -4.5;
     const damping = Math.exp(-t * 0.75);
 
-    // Update burst shockwave ring
     if (burstRef.current) {
       const burstScale = 1.0 + t * 4.5;
       burstRef.current.scale.set(burstScale, burstScale, burstScale);
@@ -174,7 +169,6 @@ export function SolidModel() {
       }
     }
 
-    // Animate each brick mesh
     if (brickGroupRef.current) {
       const meshes = brickGroupRef.current.children;
       for (let i = 0; i < meshes.length; i++) {
@@ -185,7 +179,7 @@ export function SolidModel() {
         const progressT = Math.min(t, 2.5);
         const curX = b.initialPos[0] + b.velocity.x * progressT * damping;
         const curY = Math.max(
-          -3.2 + b.size[1] / 2, // ground collision floor
+          -3.2 + b.size[1] / 2,
           b.initialPos[1] + b.velocity.y * progressT + 0.5 * gravity * progressT * progressT
         );
         const curZ = b.initialPos[2] + b.velocity.z * progressT * damping;
@@ -198,7 +192,6 @@ export function SolidModel() {
     }
   });
 
-  // Global deformation proxy
   const globalDeform = output.deformation * deformationScale;
 
   return (
@@ -216,7 +209,6 @@ export function SolidModel() {
         {bricks.map((b) => {
           const [bx, by, bz] = b.initialPos;
 
-          // 3D Spatial localized deformation when not exploded
           let [vx, vy, vz] = [0, 0, 0];
           const spatialFactor = compute3DLoadSpatialInfluence(
             bx,
@@ -239,7 +231,6 @@ export function SolidModel() {
             );
           }
 
-          // Stress color: Green -> Yellow -> Red
           let brickColor = "#A9D8F5";
           if (showStress) {
             const [r, g, bVal] = demandToStressRGB(demand);
@@ -258,6 +249,8 @@ export function SolidModel() {
                 color={brickColor}
                 roughness={0.45}
                 metalness={0.05}
+                transparent={inspectionMode}
+                opacity={inspectionMode ? (cutawayOpacity ?? 0.35) : 1.0}
               />
             </mesh>
           );
